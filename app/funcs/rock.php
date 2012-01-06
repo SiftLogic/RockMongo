@@ -45,13 +45,13 @@ function rock_array_sort(array $array, $key = null, $asc = true) {
 	}
 	else {
 		$GLOBALS["ROCK_ARRAY_SORT_KEY_" . nil] = $key;
-		uasort($array, 
+		uasort($array,
 			$asc ? create_function('$p1,$p2', '$key=$GLOBALS["ROCK_ARRAY_SORT_KEY_" . nil];$p1=rock_array_get($p1,$key);$p2=rock_array_get($p2,$key);if ($p1>$p2){return 1;}elseif($p1==$p2){return 0;}else{return -1;}')
-			:
-			create_function('$p1,$p2', '$key=$GLOBALS["rock_ARRAY_SORT_KEY_" . nil];$p1=rock_array_get($p1,$key);$p2=rock_array_get($p2,$key);if ($p1<$p2){return 1;}elseif($p1==$p2){return 0;}else{return -1;}')
+				:
+				create_function('$p1,$p2', '$key=$GLOBALS["rock_ARRAY_SORT_KEY_" . nil];$p1=rock_array_get($p1,$key);$p2=rock_array_get($p2,$key);if ($p1<$p2){return 1;}elseif($p1==$p2){return 0;}else{return -1;}')
 		);
 		unset($GLOBALS["ROCK_ARRAY_SORT_KEY_" . nil]);
-	}	
+	}
 	return $array;
 }
 
@@ -70,6 +70,7 @@ function rock_cookie($name, $default = null) {
  * Construct a real ID from a mixed ID
  *
  * @param mixed $id id in mixed type
+ * @return mixed
  */
 function rock_real_id($id) {
 	if (is_object($id)) {
@@ -94,9 +95,9 @@ function rock_real_id($id) {
 			case "object":
 				return new MongoId($value);
 		}
-		return;
+		return null;
 	}
-	
+
 	if (is_numeric($id)) {
 		return floatval($id);
 	}
@@ -110,10 +111,11 @@ function rock_real_id($id) {
  * Format ID to string
  *
  * @param mixed $id object ID
+ * @return string
  */
 function rock_id_string($id) {
 	if (is_object($id) && $id instanceof MongoId) {
-		return "rid_object:" . $id->__toString();
+		return "rid_object:" . strval($id);
 	}
 	return "rid_" . gettype($id) . ":" . $id;
 }
@@ -145,11 +147,11 @@ function rock_load_languages() {
 	$dir = __ROOT__ . DS . "langs";
 	$handler = opendir($dir);
 	$languages = array();
-	while(($file = readdir($handler)) !== false) {
+	while (($file = readdir($handler)) !== false) {
 		$langDir = $dir . DS . $file;
 		if (is_dir($langDir) && preg_match("/^\\w+_\\w+$/", $file)) {
 			require $langDir . DS . "message.php";
-			$languages[$file] = array( "code" => $file,  "name" => $message["TRANSLATION_NAME"], "id" => $message["TRANSLATION_ID"]);
+			$languages[$file] = array("code" => $file, "name" => $message["TRANSLATION_NAME"], "id" => $message["TRANSLATION_ID"]);
 		}
 	}
 	closedir($handler);
@@ -158,7 +160,7 @@ function rock_load_languages() {
 }
 
 /**
- * Get current path of theme 
+ * Get current path of theme
  *
  * @return string
  * @since 1.1.0
@@ -167,8 +169,7 @@ function rock_theme_path() {
 	global $MONGO;
 	if (isset($MONGO["features"]["theme"])) {
 		return "themes/" . $MONGO["features"]["theme"];
-	}
-	else {
+	} else {
 		return "themes/default";
 	}
 }

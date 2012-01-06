@@ -28,14 +28,14 @@ if (class_exists("RFilter")) {
 class BaseController extends RExtController {
 	/**
 	 * Enter description here...
-	 * 
+	 *
 	 * @var MServer
 	 */
 	protected $_server;
-	
+
 	/**
 	 * Enter description here ...
-	 * 
+	 *
 	 * @var Mongo
 	 */
 	protected $_mongo;
@@ -47,44 +47,44 @@ class BaseController extends RExtController {
 	 */
 	protected $_admin;
 	protected $_logQuery = false;
-	
+
 	/** called before any actions **/
 	public function onBefore() {
 		global $MONGO;
-		
+
 		//exception handler
 		set_exception_handler(array($this, "exceptionHandler"));
-		
+
 		$this->_admin = MUser::userInSession();
 		if (!$this->_admin) {
 			//if user is loged in?
 			$server = MServer::serverWithIndex(xi("host"));
-			
+
 			//filter server plugins
 			if (class_exists("RFilter")) {
 				RFilter::apply("SERVER_FILTER", $server);
 			}
-			
+
 			//if auth is disabled
 			if ($server && !$server->mongoAuth() && !$server->controlAuth()) {
 				MUser::login("rockmongo_memo", "rockmongo_memo", xi("host"), "admin", 10800);
 				$this->_admin = MUser::userInSession();
 			}
 			else {
-				$this->redirect("login.index", array( "host" =>  xi("host")));
+				$this->redirect("login.index", array("host" => xi("host")));
 			}
 		}
 		if (!$this->_admin->validate()) {
-			$this->redirect("login.index", array( "host" => $this->_admin->hostIndex() ));
+			$this->redirect("login.index", array("host" => $this->_admin->hostIndex()));
 		}
 		$this->_server = MServer::serverWithIndex($this->_admin->hostIndex());
 		$this->_mongo = $this->_server->mongo();
-		
+
 		//log query
 		if (isset($MONGO["features"]["log_query"]) && $MONGO["features"]["log_query"] == "on") {
 			$this->_logQuery = true;
 		}
-		
+
 		//render header
 		if (!$this->isAjax()) {
 			render_view("header");
@@ -97,7 +97,7 @@ class BaseController extends RExtController {
 			render_view("footer");
 		}
 	}
-	
+
 	/**
 	 * handle exception in runtime
 	 *
@@ -105,11 +105,11 @@ class BaseController extends RExtController {
 	 */
 	public function exceptionHandler($exception) {
 		$message = $exception->getMessage();
-		render_view("exception", array( "message" => $message ));
+		render_view("exception", array("message" => $message));
 		render_view("footer");
 		exit();
 	}
-	
+
 	/**
 	 * convert variable from string values
 	 *
@@ -120,6 +120,7 @@ class BaseController extends RExtController {
 	 * @param string $doubleValue float value
 	 * @param string $boolValue boolea value
 	 * @param string $mixedValue mixed value (array or object)
+	 * @return mixed
 	 * @throws Exception
 	 */
 	protected function _convertValue($mongodb, $dataType, $format, $value, $doubleValue, $boolValue, $mixedValue) {
@@ -149,7 +150,7 @@ class BaseController extends RExtController {
 		}
 		return $realValue;
 	}
-	
+
 	protected function _encodeJson($var) {
 		if (function_exists("json_encode")) {
 			return json_encode($var);
@@ -158,7 +159,7 @@ class BaseController extends RExtController {
 		$service = new Services_JSON();
 		return $service->encode($var);
 	}
-	
+
 	/**
 	 * Output variable as JSON
 	 *
@@ -171,15 +172,15 @@ class BaseController extends RExtController {
 			exit();
 		}
 	}
-	
+
 	protected function _decodeJson($var) {
 		import("classes.Services_JSON");
 		$service = new Services_JSON(SERVICES_JSON_LOOSE_TYPE);
 		$ret = array();
 		$decode = $service->decode($var);
 		return $decode;
-	}	
-	
+	}
+
 	/**
 	 * Export var as string then highlight it.
 	 *
@@ -198,7 +199,7 @@ class BaseController extends RExtController {
 			$string = preg_replace("/" . preg_quote('<span style="color: #0000BB">&lt;?php&nbsp;</span>', "/") . "/", '', $string, 1);
 		}
 		else {
-			$string =  json_format_html($varString);
+			$string = json_format_html($varString);
 		}
 		if ($label) {
 			$id = addslashes(isset($var["_id"]) ? rock_id_string($var["_id"]) : "");
@@ -210,10 +211,10 @@ class BaseController extends RExtController {
 		}
 		return $string;
 	}
-	
-	/** 
-	 * format bytes to human size 
-	 * 
+
+	/**
+	 * format bytes to human size
+	 *
 	 * @param integer $bytes size in byte
 	 * @return string size in k, m, g..
 	 **/
@@ -222,24 +223,25 @@ class BaseController extends RExtController {
 			return $bytes;
 		}
 		if ($bytes < 1024 * 1024) {
-			return round($bytes/1024, 2) . "k";
+			return round($bytes / 1024, 2) . "k";
 		}
 		if ($bytes < 1024 * 1024 * 1024) {
-			return round($bytes/1024/1024, 2) . "m";
+			return round($bytes / 1024 / 1024, 2) . "m";
 		}
 		if ($bytes < 1024 * 1024 * 1024 * 1024) {
-			return round($bytes/1024/1024/1024, 2) . "g";
+			return round($bytes / 1024 / 1024 / 1024, 2) . "g";
 		}
 		return $bytes;
 	}
-	
+
 	/**
 	 * Enter description here...
 	 *
 	 * @param MongoDB $db
 	 * @param unknown_type $from
 	 * @param unknown_type $to
-	 * @param unknown_type $index
+	 * @param bool $index
+	 * @return int
 	 */
 	protected function _copyCollection($db, $from, $to, $index = true) {
 		if ($index) {
@@ -261,15 +263,15 @@ class BaseController extends RExtController {
 				$db->selectCollection($to)->ensureIndex($index["key"], $options);
 			}
 		}
-		$ret = $db->execute('function (coll, coll2) { return db.getCollection(coll).copyTo(coll2);}', array( $from, $to ));
+		$ret = $db->execute('function (coll, coll2) { return db.getCollection(coll).copyTo(coll2);}', array($from, $to));
 		return $ret["ok"];
-	}		
-	
+	}
+
 	protected function _logFile($db, $collection) {
 		$logDir = dirname(__ROOT__) . DS . "logs";
 		return $logDir . DS . urlencode($this->_admin) . "-query-" . urlencode($db) . "-" . urlencode($collection) . ".php";
 	}
-	
+
 	/**
 	 * remember data format choice
 	 *
@@ -279,7 +281,6 @@ class BaseController extends RExtController {
 		setcookie("rock_format", $format, time() + 365 * 86400, "/");
 	}
 }
-
 
 
 ?>

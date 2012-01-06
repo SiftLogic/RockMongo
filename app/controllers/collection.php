@@ -4,44 +4,44 @@ import("classes.BaseController");
 
 /**
  * collection controller
- * 
+ *
  * You should always input these parameters:
  * - db
  * - collection
  * to call the actions.
- * 
+ *
  * @author iwind
  *
  */
 class CollectionController extends BaseController {
 	/**
 	 * DB Name
-	 * 
+	 *
 	 * @var string
 	 */
 	public $db;
-	
+
 	/**
 	 * Collection Name
-	 * 
+	 *
 	 * @var string
 	 */
 	public $collection;
-	
+
 	/**
 	 * DB instance
 	 *
 	 * @var MongoDB
 	 */
 	protected $_mongodb;
-	
+
 	public function onBefore() {
 		parent::onBefore();
 		$this->db = xn("db");
 		$this->collection = xn("collection");
 		$this->_mongodb = $this->_mongo->selectDB($this->db);
-	}	
-	
+	}
+
 	/**
 	 * load single record
 	 *
@@ -49,7 +49,7 @@ class CollectionController extends BaseController {
 	public function doRecord() {
 		$id = rock_real_id(xn("id"));
 		$format = xn("format");
-		
+
 		$queryFields = x("query_fields");
 		$fields = array();
 		if (!empty($queryFields)) {
@@ -57,32 +57,32 @@ class CollectionController extends BaseController {
 				$fields[$queryField] = 1;
 			}
 		}
-		
-		$row = $this->_mongodb->selectCollection($this->collection)->findOne(array( "_id" => $id ), $fields);
+
+		$row = $this->_mongodb->selectCollection($this->collection)->findOne(array("_id" => $id), $fields);
 		if (empty($row)) {
 			$this->_outputJson(array("code" => 300, "message" => "The record has been removed."));
 		}
 		$exporter = new VarExportor($this->_mongodb, $row);
 		$data = $exporter->export($format);
 		$html = $this->_highlight($row, $format, true);
-		$this->_outputJson(array("code" => 200, "data" => $data, "html" => $html ));
+		$this->_outputJson(array("code" => 200, "data" => $data, "html" => $html));
 	}
-	
+
 	/**
 	 * switch format between array and json
 	 */
 	public function doSwitchFormat() {
 		$data = xn("data");
 		$format = x("format");
-		
+
 		$ret = null;
-		if ($format == "json") {//to json
+		if ($format == "json") { //to json
 			$eval = new VarEval($data, "array", $this->_mongodb);
 			$array = $eval->execute();
 			$exportor = new VarExportor($this->_mongodb, $array);
 			$ret = json_unicode_to_utf8($exportor->export(MONGO_EXPORT_JSON));
 		}
-		else if ($format == "array") {//to array
+		else if ($format == "array") { //to array
 			$eval = new VarEval($data, "json", $this->_mongodb);
 			$array = $eval->execute();
 			$exportor = new VarExportor($this->_mongodb, $array);
@@ -90,23 +90,23 @@ class CollectionController extends BaseController {
 		}
 		$this->_outputJson(array("code" => 200, "data" => $ret));
 	}
-	
-/** show one collection **/
+
+	/** show one collection **/
 	public function doIndex() {
 		$this->db = xn("db");
 		$this->collection = xn("collection");
-		
+
 		//selected format last time
 		$this->last_format = rock_cookie("rock_format", "json");
-		
+
 		//write query to log
 		$params = xn();
-		if ($this->_logQuery && count($params) > 3) {//not only "action", "db" and "collection"
+		if ($this->_logQuery && count($params) > 3) { //not only "action", "db" and "collection"
 			$logDir = dirname(__ROOT__) . DS . "logs";
 			if (is_writable($logDir)) {
 				$logFile = $this->_logFile($this->db, $this->collection);
 				$fp = null;
-				if (!is_file($logFile)) {	
+				if (!is_file($logFile)) {
 					$fp = fopen($logFile, "a+");
 					fwrite($fp, '<?php exit("Permission Denied"); ?>' . "\n");
 				}
@@ -117,18 +117,18 @@ class CollectionController extends BaseController {
 				fclose($fp);
 			}
 		}
-		
+
 		//information
 		$db = $this->_mongo->selectDB($this->db);
 		$info = MCollection::info($db, $this->collection);
 		$this->canAddField = !$info["capped"];
-		
+
 		//field and sort
 		$fields = xn("field");
 		$orders = xn("order");
 		if (empty($fields)) {
 			$fields = array(
-				($info["capped"]) ? "\$natural": "_id", "", "", ""
+				($info["capped"]) ? "\$natural" : "_id", "", "", ""
 			);
 			$orders = array(
 				"desc", "asc", "asc", "asc"
@@ -136,18 +136,18 @@ class CollectionController extends BaseController {
 			x("field", $fields);
 			x("order", $orders);
 		}
-		
+
 		//format
 		$format = x("format");
 		if (!$format) {
 			$format = $this->last_format;
 			x("format", $format);
-		}	
+		}
 
 		//remember last format choice
 		$this->last_format = $format;
 		$this->_rememberFormat($format);
-		
+
 		//read fields from collection
 		import("models.MCollection");
 		$this->nativeFields = MCollection::fields($db, $this->collection);
@@ -155,18 +155,18 @@ class CollectionController extends BaseController {
 		if (!is_array($this->queryFields)) {
 			$this->queryFields = array();
 		}
-		
+
 		$this->indexFields = $db->selectCollection($this->collection)->getIndexInfo();
 		$this->recordsCount = $db->selectCollection($this->collection)->count();
 		foreach ($this->indexFields as $index => $indexField) {
 			$this->indexFields[$index]["keystring"] = $this->_encodeJson($indexField["key"]);
 		}
-		
+
 		$this->queryHints = x("query_hints");
 		if (!is_array($this->queryHints)) {
 			$this->queryHints = array();
 		}
-		
+
 		//new obj in modification
 		$newobj = trim(xn("newobj"));
 		if (!$newobj) {
@@ -185,7 +185,7 @@ class CollectionController extends BaseController {
 }');
 			}
 		}
-		
+
 		//conditions
 		$native = xn("criteria");
 		$criteria = $native;
@@ -196,12 +196,11 @@ class CollectionController extends BaseController {
 			}
 			else if ($format == "json") {
 				$native = '{
-					
-}';				
+
+}';
 			}
 			x("pagesize", 10);
-		}
-		else {
+		} else {
 			$row = null;
 			$eval = new VarEval($criteria, $format, $db);
 			$row = $eval->execute();
@@ -214,14 +213,14 @@ class CollectionController extends BaseController {
 			}
 			$criteria = $row;
 		}
-		
+
 		//remember criteria in cookie (may be replaced by query history some day)
 		//setcookie("criteria_" . $this->db . "__" . $this->collection . "__" . $format, $native, time() + );
 		x("criteria", $native);
 		import("lib.mongo.RQuery");
 		$query = new RQuery($this->_mongo, $this->db, $this->collection);
 		$query->cond($criteria);
-		
+
 		//sort
 		$realOrderedFields = array();
 		$realOrderedOrders = array();
@@ -240,7 +239,7 @@ class CollectionController extends BaseController {
 		}
 		x("field", $realOrderedFields);
 		x("order", $realOrderedOrders);
-		
+
 		//command
 		$command = x("command");
 		if (!$command) {
@@ -252,7 +251,7 @@ class CollectionController extends BaseController {
 			$query->limit($limit);
 		}
 		$count = ($limit > 0 && $command == "findAll") ? $query->count(true) : $query->count();
-		
+
 		switch ($command) {
 			case "findAll":
 				if (!empty($this->queryFields)) {
@@ -267,12 +266,12 @@ class CollectionController extends BaseController {
 				}
 				break;
 			case "remove":
-				$microtime = microtime(true);	
+				$microtime = microtime(true);
 				$query->delete();
 				$this->cost = microtime(true) - $microtime;
 				break;
 			case "modify":
-				$microtime = microtime(true);	
+				$microtime = microtime(true);
 				$row = null;
 				$newobj = xn("newobj");
 				$eval = new VarEval($newobj, $format, $db);
@@ -283,7 +282,7 @@ class CollectionController extends BaseController {
 				$this->cost = microtime(true) - $microtime;
 				break;
 		}
-		
+
 		//construct links
 		if ($format == "json") {
 			$params = xn();
@@ -295,9 +294,8 @@ class CollectionController extends BaseController {
 			$params = xn();
 			unset($params["newobj"]);
 			$params["format"] = "json";
-			$this->jsonLink = $this->path($this->action(), $params);	
-		}
-		else if ($format == "array") {
+			$this->jsonLink = $this->path($this->action(), $params);
+		} else if ($format == "array") {
 			$params = xn();
 			unset($params["newobj"]);
 			$params["format"] = "array";
@@ -305,26 +303,26 @@ class CollectionController extends BaseController {
 			$params = xn();
 			unset($params["newobj"]);
 			$params["format"] = "json";
+
 			if (empty($criteria)) {
 				$params["criteria"] = "{\n	\n}";
-			}
-			else {
+			} else {
 				$exportor = new VarExportor($db, $criteria);
 				$params["criteria"] = $exportor->export(MONGO_EXPORT_JSON);
 			}
-			$this->jsonLink = $this->path($this->action(), $params);	
+			$this->jsonLink = $this->path($this->action(), $params);
 		}
-		
+
 		if ($command != "findAll") {
 			$this->count = $count;
 			$this->display();
 			return;
 		}
-		
+
 		//pagination
 		$pagesize = xi("pagesize");
 		if ($pagesize < 1) {
-			$pagesize = 10;
+			$pagesize = min(1000, $count);
 		}
 		import("lib.page.RPageStyle1");
 		$page = new RPageStyle1();
@@ -336,12 +334,11 @@ class CollectionController extends BaseController {
 		$query->offset($page->offset());
 		if ($limit > 0) {
 			$query->limit(min($limit, $page->size()));
-		}
-		else {
+		} else {
 			$query->limit($page->size());
 		}
-		
-		$microtime = microtime(true);	
+
+		$microtime = microtime(true);
 		$this->rows = $query->findAll(true);
 		$this->cost = microtime(true) - $microtime;
 		foreach ($this->rows as $index => $row) {
@@ -356,17 +353,17 @@ class CollectionController extends BaseController {
 			$row["can_refresh"] = isset($row["_id"]);
 			$this->rows[$index] = $row;
 		}
-		
+
 		$this->display();
 	}
-	
+
 	/**
 	 * output query history
 	 *
 	 */
 	public function doQueryHistory() {
 		ob_clean();
-		
+
 		$logs = array();
 		$criterias = array();
 		if ($this->_logQuery) {
@@ -378,9 +375,9 @@ class CollectionController extends BaseController {
 				fseek($fp, -$size, SEEK_END);
 				$text = fread($fp, $size);
 				fclose($fp);
-				
+
 				preg_match_all("/(\d+\-\d+\-\d+\s+\d+:\d+:\d+)\n(.+)(={10,})/sU", $text, $match);
-				
+
 				foreach ($match[1] as $k => $time) {
 					$eval = new VarEval($match[2][$k]);
 					$params = $eval->execute();
@@ -399,13 +396,13 @@ class CollectionController extends BaseController {
 		$this->display();
 		exit();
 	}
-	
-	
+
+
 	/** explain query **/
 	public function doExplainQuery() {
 		$this->db = x("db");
 		$this->collection = xn("collection");
-		
+
 		//field and sort
 		$fields = xn("field");
 		$orders = xn("order");
@@ -420,8 +417,8 @@ class CollectionController extends BaseController {
 			x("field", $fields);
 			x("order", $orders);
 		}
-		
-		
+
+
 		//conditions
 		$native = xn("criteria");
 		$criteria = $native;
@@ -445,7 +442,7 @@ class CollectionController extends BaseController {
 		import("lib.mongo.RQuery");
 		$query = new RQuery($this->_mongo, $this->db, $this->collection);
 		$query->cond($criteria);
-		
+
 		//sort
 		foreach ($fields as $index => $field) {
 			if (!empty($field)) {
@@ -457,14 +454,14 @@ class CollectionController extends BaseController {
 				}
 			}
 		}
-		
+
 		//command
 		$command = x("command");
 		if (!$command) {
 			$command = "findAll";
 			x("command", $command);
 		}
-		
+
 		$queryHints = x("query_hints");
 		if (!empty($queryHints)) {
 			$db = $this->_mongo->selectDB($this->db);
@@ -475,36 +472,36 @@ class CollectionController extends BaseController {
 				}
 			}
 		}
-		
+
 		$cursor = $query->cursor();
 		$this->ret = $this->_highlight($cursor->explain(), "json");
 		$this->display();
 	}
-	
+
 	/** delete on row **/
 	public function doDeleteRow() {
 		$this->db = x("db");
 		$this->collection = xn("collection");
-		
+
 		import("lib.mongo.RQuery");
 		$query = new RQuery($this->_mongo, $this->db, $this->collection);
-		$ret = $query->id(rock_real_id(x("id")))->delete();
-		
+		$query->id(rock_real_id(x("id")))->delete();
+
 		$this->redirectUrl(xn("uri"), true);
 	}
-	
+
 	/** create row **/
 	public function doCreateRow() {
 		$this->db = x("db");
 		$this->collection = xn("collection");
-		
+
 		$id = rock_real_id(x("id"));
-		
-		import("lib.mongo.RQuery");	
-		
+
+		import("lib.mongo.RQuery");
+
 		//selected format last time
 		$this->last_format = rock_cookie("rock_format", "json");
-		
+
 		//if is duplicating ...
 		if (!$this->isPost() && $id) {
 			$query = new RQuery($this->_mongo, $this->db, $this->collection);
@@ -516,22 +513,22 @@ class CollectionController extends BaseController {
 				x("data", $export->export($this->last_format));
 			}
 		}
-		
+
 		//initialize
 		if (!$this->isPost() && !x("data")) {
 			x("data", ($this->last_format == "json") ? "{\n\t\n}" : "array(\n\n)");
 		}
-		
+
 		//try to deal with data
 		if ($this->isPost()) {
 			$format = x("format");
 			$this->last_format = $format;
-			
+
 			$data = xn("data");
 			$data = str_replace(array(
 				"%{created_at}"
 			), time(), $data);
-			
+
 			$row = null;
 			$eval = new VarEval($data, $format, $this->_mongo->selectDb($this->db));
 			$row = $eval->execute();
@@ -540,38 +537,38 @@ class CollectionController extends BaseController {
 				$this->display();
 				return;
 			}
-			
+
 			$query = new RQuery($this->_mongo, $this->db, $this->collection);
 			try {
-				$ret = $query->insert($row, true);
+				$query->insert($row, true);
 			} catch (Exception $e) {
 				$this->error = $e->getMessage();
 				$this->display();
 				return;
 			}
-			
+
 			//remember format choice
 			$this->_rememberFormat($format);
-			
-			$this->redirect("collection.index", array( 
+
+			$this->redirect("collection.index", array(
 				"db" => $this->db,
-				"collection" => $this->collection 
+				"collection" => $this->collection
 			), true);
 		}
-		
+
 		$this->display();
 	}
-	
+
 	/** modify one row **/
 	public function doModifyRow() {
 		$this->db = xn("db");
 		$this->collection = xn("collection");
 		$id = rock_real_id(xn("id"));
-		
+
 		//selected format last time
 		$this->last_format = rock_cookie("rock_format", "json");
-		
-		import("lib.mongo.RQuery");	
+
+		import("lib.mongo.RQuery");
 		$query = new RQuery($this->_mongo, $this->db, $this->collection);
 		$this->row = $query->id($id)->findOne();
 		if (empty($this->row)) {
@@ -587,12 +584,12 @@ class CollectionController extends BaseController {
 		if ($this->last_format == "json") {
 			$this->data = json_unicode_to_utf8($this->data);
 		}
-	
+
 		if ($this->isPost()) {
 			$this->data = xn("data");
 			$format = x("format");
 			$this->last_format = $format;
-			
+
 			$row = null;
 			$eval = new VarEval($this->data, $format, $this->_mongo->selectDb($this->db));
 			$row = $eval->execute();
@@ -601,7 +598,7 @@ class CollectionController extends BaseController {
 				$this->display();
 				return;
 			}
-			
+
 			$query = new RQuery($this->_mongo, $this->db, $this->collection);
 			$obj = $query->id($this->row["_id"])->find();
 			$oldAttrs = $obj->attrs();
@@ -621,23 +618,22 @@ class CollectionController extends BaseController {
 				$this->display();
 				return;
 			}
-			
+
 			//remember format choice
 			$this->_rememberFormat($format);
-			
+
 			$this->message = "Updated successfully.";
 		}
-		
+
 		$this->display();
 	}
-	
+
 	/** download file in GridFS **/
 	public function doDownloadFile() {
 		$this->db = xn("db");
 		$this->collection = xn("collection");
 		$this->id = xn("id");
 		$db = $this->_mongo->selectDB($this->db);
-		$prefix = substr($this->collection, 0, strrpos($this->collection, "."));
 		$file = $db->getGridFS()->findOne(array("_id" => rock_real_id($this->id)));
 		$fileinfo = pathinfo($file->getFilename());
 		$extension = strtolower($fileinfo["extension"]);
@@ -654,26 +650,26 @@ class CollectionController extends BaseController {
 		echo $file->getBytes();
 		exit;
 	}
-	
+
 	/** clear rows in collection **/
 	public function doClearRows() {
 		$this->db = x("db");
 		$this->collection = xn("collection");
-		
-		import("lib.mongo.RQuery");	
+
+		import("lib.mongo.RQuery");
 		$query = new RQuery($this->_mongo, $this->db, $this->collection);
 		$query->delete();
-		
+
 		echo '<script language="javascript">
 window.parent.frames["left"].location.reload();
 </script>';
-		
+
 		$this->redirect("collection.index", array(
 			"db" => $this->db,
 			"collection" => $this->collection
 		), true);
 	}
-	
+
 	/** drop collection **/
 	public function doRemoveCollection() {
 		$this->db = x("db");
@@ -682,7 +678,7 @@ window.parent.frames["left"].location.reload();
 		$db->dropCollection($this->collection);
 		$this->display();
 	}
-	
+
 	/** list collection indexes **/
 	public function doCollectionIndexes() {
 		$this->db = x("db");
@@ -695,28 +691,28 @@ window.parent.frames["left"].location.reload();
 		}
 		$this->display();
 	}
-	
+
 	/** drop a collection index **/
 	public function doDeleteIndex() {
 		$this->db = x("db");
 		$this->collection = xn("collection");
-		
+
 		$db = new MongoDB($this->_mongo, $this->db);
 		$collection = $this->_mongo->selectCollection($db, $this->collection);
 		$indexes = $collection->getIndexInfo();
 		foreach ($indexes as $index) {
 			if ($index["name"] == trim(xn("index"))) {
-				$ret = $db->command(array("deleteIndexes" => $collection->getName(), "index" => $index["name"]));
+				$db->command(array("deleteIndexes" => $collection->getName(), "index" => $index["name"]));
 				break;
 			}
 		}
-		
+
 		$this->redirect("collection.collectionIndexes", array(
 			"db" => $this->db,
 			"collection" => $this->collection
 		));
 	}
-	
+
 	/** create a collection index **/
 	public function doCreateIndex() {
 		$this->db = x("db");
@@ -725,7 +721,7 @@ window.parent.frames["left"].location.reload();
 		if ($this->isPost()) {
 			$db = new MongoDB($this->_mongo, $this->db);
 			$collection = $this->_mongo->selectCollection($db, $this->collection);
-			
+
 			$fields = xn("field");
 			if (!is_array($fields)) {
 				$this->message = "Index contains one field at least.";
@@ -745,7 +741,7 @@ window.parent.frames["left"].location.reload();
 				$this->display();
 				return;
 			}
-			
+
 			//if is unique
 			$options = array();
 			if (x("is_unique")) {
@@ -756,29 +752,29 @@ window.parent.frames["left"].location.reload();
 			}
 			$options["background"] = 1;
 			$options["safe"] = 1;
-			
+
 			//name
 			$name = trim(xn("name"));
 			if (!empty($name)) {
 				$options["name"] = $name;
 			}
 			$collection->ensureIndex($attrs, $options);
-			
+
 			$this->redirect("collection.collectionIndexes", array(
 				"db" => $this->db,
 				"collection" => $this->collection
 			));
 		}
-		
+
 		$this->display();
 	}
-	
+
 	/** collection statistics **/
 	public function doCollectionStats() {
 		$this->db = x("db");
 		$this->collection = xn("collection");
 		$this->stats = array();
-		
+
 		$db = new MongoDB($this->_mongo, $this->db);
 		$ret = $db->execute("db.{$this->collection}.stats()");
 		if ($ret["ok"]) {
@@ -789,9 +785,9 @@ window.parent.frames["left"].location.reload();
 				}
 			}
 		}
-		
+
 		//top
-		$ret = $this->_mongo->selectDB("admin")->command(array( "top" => 1 ));
+		$ret = $this->_mongo->selectDB("admin")->command(array("top" => 1));
 		$this->top = array();
 		$namespace = $this->db . "." . $this->collection;
 		if ($ret["ok"] && !empty($ret["totals"][$namespace])) {
@@ -802,17 +798,17 @@ window.parent.frames["left"].location.reload();
 		}
 		$this->display();
 	}
-	
+
 	/** validate collection **/
 	public function doCollectionValidate() {
 		$this->db = x("db");
 		$this->collection = xn("collection");
-		
+
 		$db = $this->_mongo->selectDB($this->db);
 		$this->ret = $this->_highlight($db->execute('function (collection){ return db.getCollection(collection).validate(); }', array($this->collection)), "json");
 		$this->display();
 	}
-	
+
 	/** rename collection **/
 	public function doCollectionRename() {
 		$this->db = xn("db");
@@ -830,6 +826,7 @@ window.parent.frames["left"].location.reload();
 			if (!$removeExists) {
 				//Is there a same name?
 				$collections = MDb::listCollections($this->_mongo->selectDB($this->db));
+				/** @var $collection MongoCollection */
 				foreach ($collections as $collection) {
 					if ($collection->getName() == $newname) {
 						$this->error = "There is already a '{$newname}' collection, you should drop it before renaming.";
@@ -838,26 +835,26 @@ window.parent.frames["left"].location.reload();
 					}
 				}
 			}
- 			$this->ret = $this->_mongo->selectDB($this->db)->execute('function (coll, newname, dropExists) { db.getCollection(coll).renameCollection(newname, dropExists);}', array( $oldname, $newname, (bool)$removeExists ));
- 			if ($this->ret["ok"]) {
- 				$this->realName = $newname;
- 				$this->message = "Operation success.";
- 			}
- 			else {
- 				$this->error = "Operation failure";
- 			}
+			$this->ret = $this->_mongo->selectDB($this->db)->execute('function (coll, newname, dropExists) { db.getCollection(coll).renameCollection(newname, dropExists);}', array($oldname, $newname, (bool)$removeExists));
+			if ($this->ret["ok"]) {
+				$this->realName = $newname;
+				$this->message = "Operation success.";
+			}
+			else {
+				$this->error = "Operation failure";
+			}
 			$this->ret = $this->_highlight($this->ret, "json");
 		}
 		$this->display();
 	}
-	
+
 	/** collection properties **/
 	public function doCollectionProps() {
 		$this->db = xn("db");
 		$this->collection = xn("collection");
-		
-		$ret = $this->_mongo->selectDB($this->db)->execute('function (coll){return db.getCollection(coll).exists();}', array( $this->collection ));
-		
+
+		$ret = $this->_mongo->selectDB($this->db)->execute('function (coll){return db.getCollection(coll).exists();}', array($this->collection));
+
 		if (!$ret["ok"]) {
 			exit("There is something wrong:<font color=\"red\">{$ret['errmsg']}</font>, please refresh the page to try again.");
 		}
@@ -877,47 +874,47 @@ window.parent.frames["left"].location.reload();
 		if (isset($options["max"])) {
 			$this->max = $options["max"];
 		}
-		
+
 		if ($this->isPost()) {
 			$this->isCapped = xi("is_capped");
 			$this->size = xi("size");
 			$this->max = xi("max");
-			
+
 			//rename current collection
 			$bkCollection = $this->collection . "_rockmongo_bk_" . uniqid();
-			$this->ret = $this->_mongo->selectDB($this->db)->execute('function (coll, newname, dropExists) { db.getCollection(coll).renameCollection(newname, dropExists);}', array( $this->collection, $bkCollection, true ));
+			$this->ret = $this->_mongo->selectDB($this->db)->execute('function (coll, newname, dropExists) { db.getCollection(coll).renameCollection(newname, dropExists);}', array($this->collection, $bkCollection, true));
 			if (!$this->ret["ok"]) {
 				$this->error = "There is something wrong:<font color=\"red\">{$ret['errmsg']}</font>, please refresh the page to try again.";
 				$this->display();
 				return;
 			}
-			
+
 			//create new collection
 			$db = $this->_mongo->selectDB($this->db);
 			$db->createCollection($this->collection, $this->isCapped, $this->size, $this->max);
-			
+
 			//copy data to new collection
 			if (!$this->_copyCollection($db, $bkCollection, $this->collection, true)) {
 				//try to recover
-				$this->ret = $db->execute('function (coll, newname, dropExists) { db.getCollection(coll).renameCollection(newname, dropExists);}', array( $bkCollection, $this->collection, true ));
-				
+				$this->ret = $db->execute('function (coll, newname, dropExists) { db.getCollection(coll).renameCollection(newname, dropExists);}', array($bkCollection, $this->collection, true));
+
 				$this->error = "There is something wrong:<font color=\"red\">{$ret['errmsg']}</font>, please refresh the page to try again.";
 				$this->display();
 				return;
 			}
-			
+
 			//drop current collection
 			$db->dropCollection($bkCollection);
 		}
-		
+
 		$this->display();
 	}
-	
+
 	/** duplicate collection **/
 	public function doCollectionDuplicate() {
 		$this->db = xn("db");
 		$this->collection = xn("collection");
-		
+
 		if (!$this->isPost()) {
 			x("target", $this->collection . "_copy");
 			x("remove_target", 1);
@@ -938,10 +935,10 @@ window.parent.frames["left"].location.reload();
 			}
 			$this->_copyCollection($db, $this->collection, $target, $copyIndexes);
 			$this->message = "Collection duplicated successfully.";
- 		}
+		}
 		$this->display();
 	}
-	
+
 	/** transfer a collection **/
 	public function doCollectionTransfer() {
 		$this->redirect("db.dbTransfer", array(
@@ -949,16 +946,16 @@ window.parent.frames["left"].location.reload();
 			"collection" => xn("collection")
 		));
 	}
-	
+
 	/** export a collection **/
 	public function doCollectionExport() {
-		$this->redirect("db.dbExport", array( "db" => xn("db"), "collection" => xn("collection") ));
+		$this->redirect("db.dbExport", array("db" => xn("db"), "collection" => xn("collection")));
 	}
-	
+
 	/** import a collection **/
 	public function doCollectionImport() {
-		$this->redirect("db.dbImport", array( "db" => xn("db") ));
-	}	
+		$this->redirect("db.dbImport", array("db" => xn("db")));
+	}
 }
 
 ?>

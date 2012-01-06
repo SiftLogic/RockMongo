@@ -3,12 +3,12 @@
 class RFilter {
 	private static $_filters = array();
 	private static $_dataTypes = array();
-	
+
 	/**
 	 * apply filters to data
 	 *
-	 * @param unknown_type $dataType
-	 * @param unknown_type $data
+	 * @param string $dataType
+	 * @param mixed $data
 	 * @param array $params
 	 */
 	public static function apply($dataType, &$data, array $params = array()) {
@@ -22,7 +22,7 @@ class RFilter {
 		foreach ($params as $param) {
 			$newParams[] = $param;
 		}
-		
+
 		foreach (rock_array_sort(self::$_filters[$dataType], "priority") as $index => $filter) {
 			call_user_func_array($filter["callback"], $newParams);
 			if (isset(self::$_dataTypes[$dataType]["enabled"]) && !self::$_dataTypes[$dataType]["enabled"]) {
@@ -30,7 +30,7 @@ class RFilter {
 			}
 		}
 	}
-	
+
 	/**
 	 * add a new filter
 	 *
@@ -49,7 +49,7 @@ class RFilter {
 			"priority" => $priority
 		);
 	}
-	
+
 	/**
 	 * stop filter chain
 	 *
@@ -58,7 +58,7 @@ class RFilter {
 	public static function stop($dataType) {
 		self::$_dataTypes[$dataType]["enabled"] = false;
 	}
-	
+
 	/**
 	 * remove a filter
 	 *

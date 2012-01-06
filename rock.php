@@ -4,7 +4,7 @@ define("DS", DIRECTORY_SEPARATOR);
 define("__ROOT__", dirname(__FILE__) . DS . "app");
 define("__VERSION__", "0.0.1");
 define("nil", "nil_" . uniqid(microtime(true)));
-define("PHP_VERSION_5_3", version_compare(PHP_VERSION, "5.3.0")>=0);
+define("PHP_VERSION_5_3", version_compare(PHP_VERSION, "5.3.0") >= 0);
 if (!defined("__ENV__")) {
 	define("__ENV__", "dev");
 }
@@ -22,7 +22,7 @@ $GLOBALS["ROCK_HTTP_VARS"] = array_merge($_GET, $_POST);
  */
 class Rock {
 	private static $_controller;
-	
+
 	/**
 	 * Start application
 	 *
@@ -43,7 +43,6 @@ class Rock {
 		$controller = $match[2];
 		$action = $match[3];
 		$mainRoot = null;
-		$isInPlugin = false;
 		if (substr($name, 0, 1) == "@") {
 			$isInPlugin = true;
 			$mainRoot = __ROOT__ . DS . "plugins" . DS . substr($name, 1, strpos($name, ".") - 1);
@@ -51,8 +50,7 @@ class Rock {
 				$mainRoot = dirname(dirname(__ROOT__)) . DS . "plugins" . DS . substr($name, 1, strpos($name, ".") - 1);
 			}
 			$name = substr($name, strpos($name, ".") + 1);
-		}
-		else {
+		} else {
 			$isInPlugin = false;
 			$mainRoot = __ROOT__;
 		}
@@ -67,11 +65,12 @@ class Rock {
 			$file = realpath($file);
 			trigger_error("class '{$class}' is not found in controller file '{$file}'", E_USER_ERROR);
 		}
+		/** @var $obj RController */
 		$obj = new $class;
 		if (!($obj instanceof RController)) {
 			trigger_error("controller class '{$class}' must be a subclass of RController", E_USER_ERROR);
 		}
-		
+
 		define("__ACTION__", $action);
 		$obj->setRoot($mainRoot);
 		$obj->setAction($action);
@@ -80,11 +79,11 @@ class Rock {
 		$obj->setInPlugin($isInPlugin);
 		$obj->exec();
 	}
-	
+
 	public static function setController($controller) {
 		self::$_controller = $controller;
-	}	
-	
+	}
+
 	/**
 	 * get current running controller object
 	 *
@@ -92,7 +91,7 @@ class Rock {
 	 */
 	public static function controller() {
 		return self::$_controller;
-	}	
+	}
 }
 
 /**
@@ -101,19 +100,20 @@ class Rock {
  */
 class RController {
 	private $_action;
+	private $_root;
 	private $_path;
 	private $_name;
 	private $_inPlugin = false;
-	
+
 	/**
-	 * set current action name 
+	 * set current action name
 	 *
 	 * @param string $action action name
 	 */
 	public function setAction($action) {
 		$this->_action = $action;
 	}
-	
+
 	/**
 	 * Get action name
 	 *
@@ -122,15 +122,15 @@ class RController {
 	public function action() {
 		return $this->_action;
 	}
-	
+
 	public function setRoot($root) {
 		$this->_root = $root;
 	}
-	
+
 	public function root() {
 		return $this->_root;
-	}	
-	
+	}
+
 	/**
 	 * Set controller file path
 	 *
@@ -139,7 +139,7 @@ class RController {
 	public function setPath($path) {
 		$this->_path = $path;
 	}
-	
+
 	/**
 	 * Set controller name
 	 *
@@ -148,7 +148,7 @@ class RController {
 	public function setName($name) {
 		$this->_name = $name;
 	}
-	
+
 	/**
 	 * Get controller name
 	 *
@@ -157,7 +157,7 @@ class RController {
 	public function name() {
 		return $this->_name;
 	}
-	
+
 	/**
 	 * Set if the controller is in a plugin
 	 *
@@ -166,50 +166,51 @@ class RController {
 	public function setInPlugin($isInPlugin) {
 		$this->_inPlugin = $isInPlugin;
 	}
-	
+
 	/**
 	 * Call before actions
 	 *
 	 */
 	public function onBefore() {
-		
+
 	}
-	
+
 	/**
 	 * Call after actions
 	 *
 	 */
 	public function onAfter() {
-		
+
 	}
-	
+
 	/**
 	 * Execute action
 	 *
 	 */
 	public function exec() {
 		Rock::setController($this);
-		
+
 		if (class_exists("RPlugin")) {
 			RPlugin::callBefore();
 		}
 		$this->onBefore();
-		
+
 		$method = "do" . $this->_action;
 		if (!method_exists($this, $method)) {
 			trigger_error("can not find action '{$this->_action}' in class '" . get_class($this) . "'", E_USER_ERROR);
 		}
+		/** @var $ret RView|mixed */
 		$ret = $this->$method();
 		if (is_object($ret) && ($ret instanceof RView)) {
 			$ret->display();
 		}
-		
+
 		$this->onAfter();
 		if (class_exists("RPlugin")) {
 			RPlugin::callAfter();
 		}
 	}
-	
+
 	/**
 	 * Display View
 	 *
@@ -221,10 +222,10 @@ class RController {
 		}
 		$view = null;
 		if ($this->_inPlugin) {
-			$view = dirname(dirname($this->_path))  . "/views/" . str_replace(".", "/", $this->_name) . "/{$action}.php";
+			$view = dirname(dirname($this->_path)) . "/views/" . str_replace(".", "/", $this->_name) . "/{$action}.php";
 		}
 		else {
-			$view = dirname(__ROOT__) . DS . rock_theme_path()  . "/views/" . str_replace(".", "/", $this->_name) . "/{$action}.php";
+			$view = dirname(__ROOT__) . DS . rock_theme_path() . "/views/" . str_replace(".", "/", $this->_name) . "/{$action}.php";
 		}
 		if (is_file($view)) {
 			extract(get_object_vars($this), EXTR_OVERWRITE);
@@ -238,7 +239,7 @@ class RController {
  *
  */
 class RModel {
-	
+
 }
 
 /**
@@ -251,22 +252,22 @@ class RView {
 	 *
 	 */
 	public function display() {
-		
+
 	}
 }
 
 /**
  * 打印数据的内容
- * 
+ *
  * 函数名为Print的缩写
- * 
+ *
  * <code>
  * p($obj);
  * p($obj1, $obj2, ...)
  * </code>
- * 
+ *
  * 从1.0.2开始，在命令行下不再显示<xmp>和</xmp>
- * 
+ *
  * @param mixed $data1 要被打印的数据
  */
 function p($data1 = null) {
@@ -283,10 +284,10 @@ function p($data1 = null) {
 }
 
 /**
- * 获取或设置参数对应的值
+ * Get or set parameter name
  *
- * @param string|array $name 一个或一组参数名
- * @param mixed $value 如果不为nil，则将此值赋给参数
+ * @param string|array $name parameter name or parameters list
+ * @param mixed $value valueto assign when other than nil
  * @return mixed
  */
 function x($name, $value = nil) {
@@ -324,11 +325,11 @@ function rock_filter_param($param, $filter = true) {
 }
 
 /**
- * 获取参数的值
- * 
- * 与x($name)不同的是，该函数获取的参数不会被自动过滤（通过trim和htmlspecialchars）
+ * Get parameter value
  *
- * @param string $name 参数名
+ * Differs from x($name) that filters are not applied to parameter value（e.g. trim, htmlspecialchars
+ *
+ * @param string $name parameter name
  * @return mixed
  * @see x
  */
@@ -336,7 +337,7 @@ function xn($name = nil) {
 	if ($name == nil) {
 		return array_merge(rock_filter_param($GLOBALS["ROCK_HTTP_VARS"], false), $GLOBALS["ROCK_USER_VARS"]);
 	}
-	
+
 	if (array_key_exists($name, $GLOBALS["ROCK_USER_VARS"])) {
 		return $GLOBALS["ROCK_USER_VARS"][$name];
 	}
@@ -347,9 +348,9 @@ function xn($name = nil) {
 }
 
 /**
- * 获取参数的值，并转化为整数
+ * Get parameter value as integer
  *
- * @param string $name 参数名
+ * @param string $name parameter name
  * @return integer
  * @see x
  */
@@ -359,23 +360,24 @@ function xi($name) {
 
 /**
  * import a class file
- * 
+ *
  * @param string $class full class name
  * @param boolean $isClass if file is class
+ * @return string
  */
 function import($class, $isClass = true) {
 	$className = substr($class, strrpos($class, ".") + 1);
 	if ($isClass && class_exists($className, false)) {
 		return $className;
 	}
-	
+
 	$file = null;
 	if (strstr($class, "@")) {
 		$trace = debug_backtrace();
 		$calledFile = $trace[0]["file"];
 		$count = substr_count($class, "@");
 		$dir = $calledFile;
-		for ($i = 0; $i < $count; $i ++) {
+		for ($i = 0; $i < $count; $i++) {
 			$dir = dirname($dir);
 		}
 		$file = $dir . "/" . str_replace(".", "/", str_replace("@.", "", $class)) . ".php";
@@ -392,9 +394,9 @@ function import($class, $isClass = true) {
 
 /**
  * 查找配置
- * 
+ *
  * 配置都有环境和平台限制
- * 
+ *
  * o("@.config") - 查找当前目录下的config.dev@def.php配置
  * o("@.config.servers") - 查找config配置，并取出其中的servers键对应的值
  *
@@ -405,7 +407,7 @@ function o($config) {
 	if (isset($GLOBALS["ROCK_CONFIGS"][$config])) {
 		return $GLOBALS["ROCK_CONFIGS"][$config];
 	}
-	
+
 	$file = null;
 	$option = null;
 	$pieces = explode(".", $config);
@@ -414,7 +416,7 @@ function o($config) {
 		$calledFile = $trace[0]["file"];
 		$count = substr_count($config, "@");
 		$dir = $calledFile;
-		for ($i = 0; $i < $count; $i ++) {
+		for ($i = 0; $i < $count; $i++) {
 			unset($pieces[$i]);
 			$dir = dirname($dir);
 		}
@@ -425,7 +427,7 @@ function o($config) {
 		$filename = array_shift($pieces);
 		$file = __ROOT__ . "/configs/" . $filename . "@" . __PLATFORM__ . ".php";
 	}
-	
+
 	$options = $pieces;
 	$ret = require($file);
 
@@ -439,7 +441,7 @@ function o($config) {
 		return null;
 	}
 	$ret = rock_array_get($ret, $options);
-	
+
 	$GLOBALS["ROCK_CONFIGS"][$config] = $ret;
 	return $ret;
 }
@@ -449,7 +451,7 @@ function o($config) {
  *
  * 首字母小写，其余单词的首字母大写<br/>
  * load_xml_config --> loadXmlConfig
- * 
+ *
  * @param string $name 名称
  * @return string
  */
@@ -465,7 +467,7 @@ function rock_name_to_java($name) {
  * @param array|string $keys key or keys, can be a.b.c
  * @return mixed
  * @see rock_array_set
- */	
+ */
 function rock_array_get(array $array, $keys) {
 	if (is_array($keys) && empty($keys)) {
 		return $array;
@@ -479,7 +481,7 @@ function rock_array_get(array $array, $keys) {
 	if (count($keys) == 1) {
 		$firstKey = array_pop($keys);
 		$firstKey = str_replace("\\.", ".", $firstKey);
-		return array_key_exists($firstKey, $array)?$array[$firstKey]:null;
+		return array_key_exists($firstKey, $array) ? $array[$firstKey] : null;
 	}
 	$lastKey = array_pop($keys);
 	$lastKey = str_replace("\\.", ".", $lastKey);
@@ -493,14 +495,14 @@ function rock_array_get(array $array, $keys) {
 			return null;
 		}
 	}
-	
-	return (is_array($lastArray) && array_key_exists($lastKey, $lastArray))? $lastArray[$lastKey] : null;
+
+	return (is_array($lastArray) && array_key_exists($lastKey, $lastArray)) ? $lastArray[$lastKey] : null;
 }
 
 
 /**
  * 设置一个数组中某个键的值，并返回设置后的值
- * 
+ *
  * 对原有的数组没有影响
  *
  * @param array $array 数组
@@ -541,17 +543,17 @@ function rock_array_set(array $array, $keys, $value) {
 
 /**
  * 从一个数组的值中选取key做当前数组的key
- * 
+ *
  * <code>
  * $array = array(
  *   array("a" => 11, "b" => 12),
  *   array("a" => 21, "b" => 22)
  *   //...
  * );
- * 
+ *
  * $array2 = rock_array_combine($array, "a", "b");
  * </code>
- * 
+ *
  * $array2就变成了：
  * <code>
  * array(
@@ -559,20 +561,20 @@ function rock_array_set(array $array, $keys, $value) {
  *   21 => 22
  * );
  * </code>
- * 
+ *
  * 如果$valueName没有值，则是把当前元素值当成value:
- * 
+ *
  * <code>
  * $array2 = rock_array_combine($array, "a");
- * 
+ *
  * array(
  *   11 => array("a" => 11, "b" => 12),
  *   21 => array("a" => 21, "b" => 22)
  * );
  * </code>
- * 
+ *
  * 支持以点(.)符号连接的多层次keyName和valueName：
- * - rock_array_combine($array, "a.b", "a.c"); 
+ * - rock_array_combine($array, "a.b", "a.c");
  * 即重新构成了一个以$array[n][a][b]为键，以$array[n][a][c]为值的数组，其中n是数组的索引
  *
  * @param array $array 二维数组
@@ -623,7 +625,7 @@ function rock_lang($code) {
 		}
 		$GLOBALS["ROCK_LANGS"] = array_merge($message, $GLOBALS["ROCK_LANGS"]);
 	}
-	
+
 	$args = func_get_args();
 	unset($args[0]);
 	if (empty($args)) {
@@ -641,10 +643,10 @@ function rock_check_version() {
 	if (!isset($MONGO["servers"][0]["host"])) {
 		return;
 	}
-	
+
 	//version 1.0.x
 	foreach ($MONGO["servers"] as $index => $server) {
-		foreach($server as $param => $value) {
+		foreach ($server as $param => $value) {
 			switch ($param) {
 				case "host":
 					$server["mongo_host"] = $value;
