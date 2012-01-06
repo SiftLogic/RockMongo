@@ -6,7 +6,7 @@ class DbController extends BaseController {
 	/** database **/
 	public function doIndex() {
 		$this->db = trim(xn("db"));
-		
+
 		$dbs = $this->_server->listDbs();
 		$ret = array();
 		foreach ($dbs["databases"] as $db) {
@@ -14,11 +14,11 @@ class DbController extends BaseController {
 				$ret = $db;
 			}
 		}
-		
+
 		//collections
 		$db = $this->_mongo->selectDB($this->db);
 		$collections = MDb::listCollections($db);
-		
+
 		$ret = array_merge($ret, $db->command(array("dbstats" => 1)));
 		$ret["diskSize"] = "-";
 		if (isset($ret["sizeOnDisk"])) {
@@ -27,7 +27,7 @@ class DbController extends BaseController {
 		$ret["dataSize"] = $this->_formatBytes($ret["dataSize"]);
 		$ret["storageSize"] = $this->_formatBytes($ret["storageSize"]);
 		$ret["indexSize"] = $this->_formatBytes($ret["indexSize"]);
-		
+
 		$this->stats = array();
 		$this->stats["Size"] = $ret["diskSize"];
 		$this->stats["Is Empty?"] = $ret["empty"] ? "Yes" : "No";
@@ -36,11 +36,11 @@ class DbController extends BaseController {
 			$this->stats["Collections"] .= "<br/>No collections yet";
 		}
 		else {
-			$key = "Collections<br/>[<a href=\"" . $this->path("db.dropDbCollections", array( "db" => $this->db )) . "\" onclick=\"return window.confirm('Are you sure to drop all collections in the db?')\"><u>Drop All</u></a>]<br/>[<a href=\"" . $this->path("clearDbCollections", array( "db" => $this->db )) . "\" onclick=\"return window.confirm('Are you sure to clear all records in all collections?')\"><u>Clear All</u></a>]";
+			$key = "Collections<br/>[<a href=\"" . $this->path("db.dropDbCollections", array("db" => $this->db)) . "\" onclick=\"return window.confirm('Are you sure to drop all collections in the db?')\"><u>Drop All</u></a>]<br/>[<a href=\"" . $this->path("clearDbCollections", array("db" => $this->db)) . "\" onclick=\"return window.confirm('Are you sure to clear all records in all collections?')\"><u>Clear All</u></a>]";
 			$this->stats[$key] = count($collections) . " collections:";
 			foreach ($collections as $collection) {
-				$this->stats[$key] .= "<br/><a href=\"" 
-					. $this->path("collection.index", array( "db" => $this->db, "collection" => $collection->getName())) . "\">" . $collection->getName() . "</a>";
+				$this->stats[$key] .= "<br/><a href=\""
+					. $this->path("collection.index", array("db" => $this->db, "collection" => $collection->getName())) . "\">" . $collection->getName() . "</a>";
 			}
 		}
 		$this->stats["Objects"] = $ret["objects"];
@@ -52,15 +52,15 @@ class DbController extends BaseController {
 
 		$this->display();
 	}
-	
+
 	/** transfer db collections from one server to another **/
 	public function doDbTransfer() {
 		$this->db = xn("db");
-		
+
 		$db = $this->_mongo->selectDB($this->db);
 		$this->collections = $db->listCollections();
 		$this->servers = $this->_admin->servers();
-		
+
 		$this->selectedCollections = array();
 		if (!$this->isPost()) {
 			$this->selectedCollections[] = xn("collection");
@@ -77,7 +77,7 @@ class DbController extends BaseController {
 			$this->target_auth = xi("target_auth");
 			$this->target_username = trim(xn("target_username"));
 			$this->target_password = trim(xn("target_password"));
-			
+
 			$checkeds = xn("checked");
 			if (is_array($checkeds)) {
 				$this->selectedCollections = array_keys($checkeds);
@@ -94,11 +94,11 @@ class DbController extends BaseController {
 			}
 			$copyIndexes = xi("copy_indexes");
 			/**if ($target === "") {
-				$this->error = "Please enter a valid database name.";
-				$this->display();
-				return;
+			$this->error = "Please enter a valid database name.";
+			$this->display();
+			return;
 			}**/
-			
+
 			//start to transfer
 			$targetConnection = new Mongo("mongodb://" . $this->target_host . ":" . $this->target_port);
 			$targetDb = $targetConnection->selectDB($this->db);
@@ -109,7 +109,7 @@ class DbController extends BaseController {
 			foreach ($this->selectedCollections as $collectionName) {
 				$ret = $targetDb->command(array(
 					"cloneCollection" => $this->db . "." . $collectionName,
-					"from" =>  $this->_server->uri(),
+					"from" => $this->_server->uri(),
 					"copyIndexes" => (bool)$copyIndexes
 				));
 				if (!$ret["ok"]) {
@@ -122,17 +122,17 @@ class DbController extends BaseController {
 				$this->display();
 				return;
 			}
-			
+
 			$this->message = "All data were transfered to '{$this->target_host}' successfully.";
-		}		
-		
+		}
+
 		$this->display();
 	}
-	
+
 	/** export db **/
 	public function doDbExport() {
 		$this->db = xn("db");
-		
+
 		$db = $this->_mongo->selectDB($this->db);
 		$this->collections = MDb::listCollections($db);
 		$this->selectedCollections = array();
@@ -145,13 +145,13 @@ class DbController extends BaseController {
 			if (is_array($checkeds)) {
 				$this->selectedCollections = array_keys($checkeds);
 			}
-			
+
 			sort($this->selectedCollections);
-			
+
 			import("classes.VarExportor");
-			$this->contents =  "";
+			$this->contents = "";
 			$this->countRows = 0;
-			
+
 			//indexes
 			foreach ($this->selectedCollections as $collection) {
 				$collObj = $db->selectCollection($collection);
@@ -166,28 +166,28 @@ class DbController extends BaseController {
 					$this->contents .= "\n/** {$collection} indexes **/\ndb.getCollection(\"" . addslashes($collection) . "\").ensureIndex(" . $exportor->export(MONGO_EXPORT_JSON) . "," . $exportor2->export(MONGO_EXPORT_JSON) . ");\n";
 				}
 			}
-			
+
 			//data
 			foreach ($this->selectedCollections as $collection) {
 				$cursor = $db->selectCollection($collection)->find();
-				$this->contents .= "\n/** " . $collection  . " records **/\n";
+				$this->contents .= "\n/** " . $collection . " records **/\n";
 				foreach ($cursor as $one) {
-					$this->countRows ++;
+					$this->countRows++;
 					$exportor = new VarExportor($db, $one);
 					$this->contents .= "db.getCollection(\"" . addslashes($collection) . "\").insert(" . $exportor->export(MONGO_EXPORT_JSON) . ");\n";
 					unset($exportor);
 				}
 				unset($cursor);
 			}
-			
+
 			if (x("can_download")) {
 				$prefix = "rockmongo-export-" . urlencode($this->db) . "-" . time();
-				
+
 				//gzip
 				if (x("gzip")) {
 					ob_end_clean();
 					header("Content-type: application/x-gzip");
-					header("Content-Disposition: attachment; filename=\"{$prefix}.gz\")"); 
+					header("Content-Disposition: attachment; filename=\"{$prefix}.gz\")");
 					echo gzcompress($this->contents, 9);
 					exit();
 				}
@@ -200,18 +200,18 @@ class DbController extends BaseController {
 				}
 			}
 		}
-		
+
 		$this->display();
 	}
-	
+
 	/** import db **/
 	public function doDbImport() {
 		$this->db = xn("db");
-		
+
 		if ($this->isPost()) {
 			if (!empty($_FILES["json"]["tmp_name"])) {
 				$tmp = $_FILES["json"]["tmp_name"];
-				
+
 				//read file by it's format
 				$body = "";
 				if (preg_match("/\.gz$/", $_FILES["json"]["name"])) {
@@ -220,7 +220,7 @@ class DbController extends BaseController {
 				else {
 					$body = file_get_contents($tmp);
 				}
-				
+
 				$ret = $this->_mongo->selectDB($this->db)->execute('function (){ ' . $body . ' }');
 				$this->message = "All data import successfully.";
 			}
@@ -228,14 +228,14 @@ class DbController extends BaseController {
 				$this->error = "Either no file input or file is too large to upload.";
 			}
 		}
-		
+
 		$this->display();
-	}	
-	
+	}
+
 	/** db profiling **/
 	public function doProfile() {
 		$this->db = xn("db");
-	
+
 		import("lib.mongo.RQuery");
 		import("lib.page.RPageStyle1");
 		$query = new RQuery($this->_mongo, $this->db, "system.profile");
@@ -244,7 +244,7 @@ class DbController extends BaseController {
 		$page->setSize(10);
 		$page->setAutoQuery();
 		$this->page = $page;
-		
+
 		$this->rows = $query
 			->offset($page->offset())
 			->limit($page->size())
@@ -253,10 +253,10 @@ class DbController extends BaseController {
 		foreach ($this->rows as $index => $row) {
 			$this->rows[$index]["text"] = $this->_highlight($row, "json");
 		}
-			
+
 		$this->display();
 	}
-	
+
 	/** change db profiling level **/
 	public function doProfileLevel() {
 		$this->db = xn("db");
@@ -275,59 +275,59 @@ class DbController extends BaseController {
 		}
 		$this->display();
 	}
-	
+
 	/** clear profiling data **/
 	public function doClearProfile() {
 		$this->db = xn("db");
 		$db = $this->_mongo->selectDB($this->db);
-		
+
 		$query1 = $db->execute("function (){ return db.getProfilingLevel(); }");
 		$oldLevel = $query1["retval"];
 		$db->execute("function(level) { db.setProfilingLevel(level); }", array(0));
 		$ret = $db->selectCollection("system.profile")->drop();
 		$db->execute("function(level) { db.setProfilingLevel(level); }", array($oldLevel));
 
-		$this->redirect("db.profile", array( 
+		$this->redirect("db.profile", array(
 			"db" => $this->db
 		));
 	}
-	
+
 	/** authentication **/
 	public function doAuth() {
 		$this->db = xn("db");
 		$db = $this->_mongo->selectDB($this->db);
-		
+
 		//users
 		$collection = $db->selectCollection("system.users");
 		$cursor = $collection->find();
-		$this->users= array();
-		while($cursor->hasNext()) {
+		$this->users = array();
+		while ($cursor->hasNext()) {
 			$this->users[] = $cursor->getNext();
 		}
-		
+
 		$this->display();
 	}
-	
+
 	/** delete user **/
 	public function doDeleteUser() {
 		$this->db = xn("db");
 		$db = $this->_mongo->selectDB($this->db);
-		
+
 		$db->execute("function (username){ db.removeUser(username); }", array(xn("user")));
 		$this->redirect("db.auth", array(
 			"db" => $this->db
 		));
 	}
-	
+
 	/** add user **/
 	public function doAddUser() {
 		$this->db = xn("db");
-		
+
 		if (!$this->isPost()) {
 			$this->display();
 			return;
 		}
-		
+
 		$username = trim(xn("username"));
 		$password = trim(xn("password"));
 		$password2 = trim(xn("password2"));
@@ -352,12 +352,12 @@ class DbController extends BaseController {
 			$password,
 			x("readonly") ? true : false
 		));
-		
+
 		$this->redirect("auth", array(
 			"db" => $this->db
 		));
 	}
-	
+
 	/** create new collection **/
 	public function doNewCollection() {
 		$this->db = xn("db");
@@ -365,21 +365,21 @@ class DbController extends BaseController {
 		$this->isCapped = xi("is_capped");
 		$this->size = xi("size");
 		$this->max = xi("max");
-		
+
 		if ($this->isPost()) {
 			$db = new MongoDB($this->_mongo, $this->db);
 			$db->createCollection($this->name, $this->isCapped, $this->size, $this->max);
 			$this->message = "New collection is created.";
-			
+
 			//add index
 			if (!$this->isCapped) {
-				$db->selectCollection($this->name)->ensureIndex(array( "_id" => 1 ));
+				$db->selectCollection($this->name)->ensureIndex(array("_id" => 1));
 			}
 		}
-		
+
 		$this->display();
 	}
-	
+
 	/** drop all collections in a db **/
 	public function doDropDbCollections() {
 		$this->db = xn("db");
@@ -390,9 +390,9 @@ class DbController extends BaseController {
 		echo '<script language="javascript">
 window.parent.frames["left"].location.reload();
 </script>';
-		$this->redirect("db.index", array( "db" => $this->db ), true);
+		$this->redirect("db.index", array("db" => $this->db), true);
 	}
-	
+
 	/** clear all records in all collections **/
 	public function doClearDbCollections() {
 		$this->db = xn("db");
@@ -403,33 +403,33 @@ window.parent.frames["left"].location.reload();
 		echo '<script language="javascript">
 window.parent.frames["left"].location.reload();
 </script>';
-		$this->redirect("db.index", array( "db" => $this->db ), true);
+		$this->redirect("db.index", array("db" => $this->db), true);
 	}
-	
+
 	/** repair dataase **/
 	public function doRepairDatabase() {
 		$this->db = xn("db");
-		
+
 		$db = $this->_mongo->selectDB($this->db);
-		$ret = $db->command(array( "repairDatabase" => 1 ));
+		$ret = $db->command(array("repairDatabase" => 1));
 		//$ret = $db->execute('function (){ return db.repairDatabase(); }'); //occure error in current version, we did not know why?
 		$this->ret = $this->_highlight($ret, "json");
 		$this->display();
 	}
-	
+
 	/** drop database **/
 	public function doDropDatabase() {
 		$this->db = xn("db");
-		
+
 		if (!x("confirm")) {
 			$this->display();
 			return;
 		}
-		
+
 		$ret = $this->_mongo->dropDB($this->db);
 		$this->ret = $this->_highlight($ret, "json");
 		$this->display("dropDatabaseResult");
-	}	
+	}
 }
 
 ?>

@@ -56,16 +56,16 @@ function url($action, array $params = array()) {
 
 /**
  * Render navigation
- * 
+ *
  * @param string $db database name
  * @param string|null $collection collection name
  * @param boolean $extend if extend the parameters
  */
 function render_navigation($db, $collection = null, $extend = true) {
 	$dbpath = url("db.index", array("db" => $db));
-	$navigation = '<a href="' . url("server.databases") . '"><img src="' . rock_theme_path() . '/images/world.png" width="14" align="absmiddle"/> ' . rock_lang("databases") . '</a> &raquo; <a href="' .$dbpath . '"><img src="' . rock_theme_path() . '/images/database.png" width="14" align="absmiddle"/> ' . $db . "</a>";
-	if(!is_null($collection)) {
-		$navigation .= " &raquo; <a href=\"" . url("collection.index", $extend ? xn() : array( "db" => $db, "collection" => $collection )) . "\">";
+	$navigation = '<a href="' . url("server.databases") . '"><img src="' . rock_theme_path() . '/images/world.png" width="14" align="absmiddle"/> ' . rock_lang("databases") . '</a> &raquo; <a href="' . $dbpath . '"><img src="' . rock_theme_path() . '/images/database.png" width="14" align="absmiddle"/> ' . $db . "</a>";
+	if (!is_null($collection)) {
+		$navigation .= " &raquo; <a href=\"" . url("collection.index", $extend ? xn() : array("db" => $db, "collection" => $collection)) . "\">";
 		if (preg_match("/\\.(files|chunks)/", $collection)) {
 			$navigation .= '<img src="' . rock_theme_path() . '/images/grid.png" width="14" align="absmiddle"/> ';
 		}
@@ -85,20 +85,20 @@ function render_navigation($db, $collection = null, $extend = true) {
  */
 function render_server_menu($currentAction = null) {
 	$menuItems = array(
-		array( "action" => "server.index", "name" => rock_lang("server")),
-		array( "action" => "server.status", "name" => rock_lang("status")),
-		array( "action" => "server.databases", "name" => rock_lang("databases")),
-		array( "action" => "server.processlist", "name" => rock_lang("processlist")),
-		array( "action" => "server.command", "params" => array("db"=>xn("db")), "name" => rock_lang("command")),
-		array( "action" => "server.execute", "params" => array("db"=>xn("db")), "name" => rock_lang("execute")),
-		array( "action" => "server.replication", "name" => rock_lang("master_slave")),
+		array("action" => "server.index", "name" => rock_lang("server")),
+		array("action" => "server.status", "name" => rock_lang("status")),
+		array("action" => "server.databases", "name" => rock_lang("databases")),
+		array("action" => "server.processlist", "name" => rock_lang("processlist")),
+		array("action" => "server.command", "params" => array("db" => xn("db")), "name" => rock_lang("command")),
+		array("action" => "server.execute", "params" => array("db" => xn("db")), "name" => rock_lang("execute")),
+		array("action" => "server.replication", "name" => rock_lang("master_slave")),
 	);
-	
+
 	//plugin
 	if (class_exists("RFilter")) {
 		RFilter::apply("SERVER_MENU_FILTER", $menuItems);
 	}
-	
+
 	$string = "";
 	$count = count($menuItems);
 	foreach ($menuItems as $index => $op) {
@@ -111,7 +111,7 @@ function render_server_menu($currentAction = null) {
 				$string .= " " . $match[1] . "=\"" . $attrValue . "\"";
 			}
 		}
-		$string .= ">" . $op["name"] . "</a>"; 
+		$string .= ">" . $op["name"] . "</a>";
 		if ($index < $count - 1) {
 			$string .= " | ";
 		}
@@ -127,27 +127,27 @@ function render_server_menu($currentAction = null) {
  */
 function render_db_menu($dbName) {
 	$menuItems = array(
-		array( "action" => "db.index", "params" => array("db"=>$dbName), "name" => rock_lang("statistics") ),
-		array( "action" => "db.newCollection", "params" => array("db"=>$dbName), "name" => rock_lang("create_collection") ),
-		array( "action" => "server.command", "params" => array("db"=>$dbName), "name" => rock_lang("command") ),
-		array( "action" => "server.execute", "params" => array("db"=>$dbName), "name" => rock_lang("execute") ),
-		array( "action" => "db.dbTransfer", "params" => array("db"=>$dbName), "name" => rock_lang("transfer") ),
-		array( "action" => "db.dbExport", "params" => array("db"=>$dbName), "name" => rock_lang("export") ),
-		array( "action" => "db.dbImport", "params" => array("db"=>$dbName), "name" => rock_lang("import") ),
-		array( "action" => "db.profile", "params" => array("db"=>$dbName), "name" => rock_lang("profile")),
-		array( "action" => "db.repairDatabase", "params" => array("db"=>$dbName), "name" => rock_lang("repair"), "attr.onclick" => "return window.confirm('" . rock_lang("repairdbmsg") . " {$dbName}?');" ),
-		array( "action" => "db.auth", "params" => array("db"=>$dbName), "name" => rock_lang("authentication") ),
-		array( "action" => "db.dropDatabase", "params" => array("db"=>$dbName), "name" => rock_lang("drop"), "attr.onclick" => "return window.confirm('" . rock_lang("dropwarning") . " " . $dbName . "? " . rock_lang("dropwarning2") . "');")
+		array("action" => "db.index", "params" => array("db" => $dbName), "name" => rock_lang("statistics")),
+		array("action" => "db.newCollection", "params" => array("db" => $dbName), "name" => rock_lang("create_collection")),
+		array("action" => "server.command", "params" => array("db" => $dbName), "name" => rock_lang("command")),
+		array("action" => "server.execute", "params" => array("db" => $dbName), "name" => rock_lang("execute")),
+		array("action" => "db.dbTransfer", "params" => array("db" => $dbName), "name" => rock_lang("transfer")),
+		array("action" => "db.dbExport", "params" => array("db" => $dbName), "name" => rock_lang("export")),
+		array("action" => "db.dbImport", "params" => array("db" => $dbName), "name" => rock_lang("import")),
+		array("action" => "db.profile", "params" => array("db" => $dbName), "name" => rock_lang("profile")),
+		array("action" => "db.repairDatabase", "params" => array("db" => $dbName), "name" => rock_lang("repair"), "attr.onclick" => "return window.confirm('" . rock_lang("repairdbmsg") . " {$dbName}?');"),
+		array("action" => "db.auth", "params" => array("db" => $dbName), "name" => rock_lang("authentication")),
+		array("action" => "db.dropDatabase", "params" => array("db" => $dbName), "name" => rock_lang("drop"), "attr.onclick" => "return window.confirm('" . rock_lang("dropwarning") . " " . $dbName . "? " . rock_lang("dropwarning2") . "');")
 	);
-	
+
 	//plugin
 	if (class_exists("RFilter")) {
-		RFilter::apply("DB_MENU_FILTER", $menuItems, array( "dbName" => $dbName )  );
-	}	
-	
+		RFilter::apply("DB_MENU_FILTER", $menuItems, array("dbName" => $dbName));
+	}
+
 	$displayCount = 7;
 	$hasMore = false;
-	
+
 	$string = "";
 	$count = count($menuItems);
 	foreach ($menuItems as $index => $op) {
@@ -156,7 +156,7 @@ function render_db_menu($dbName) {
 			$string .= "<a href=\"#\" onclick=\"showMoreMenus(this);return false;\">" . rock_lang("more") . " &raquo;</a>";
 			$string .= "<div class=\"menu\">";
 		}
-		
+
 		if (!empty($op["action"])) {
 			$string .= '<a href="' . url($op["action"], isset($op["params"]) ? $op["params"] : array()) . '"';
 			if (__CONTROLLER__ . "." . __ACTION__ == $op["action"]) {
@@ -203,29 +203,29 @@ function render_db_menu($dbName) {
  */
 function render_collection_menu($dbName, $collectionName) {
 	$menuItems = array(
-		array( "action" => "collection.createRow", "params" => xn(), "name" => rock_lang("insert") ),
-		array( "action" => "collection.clearRows", "params" => xn(), "name" => rock_lang("clear"), "attr.onclick" => "return window.confirm('Are you sure to delete all records in collection \'" . $collectionName . "\'?');" ),
-		array( "action" => "#", "params" =>  array(), "name" => rock_lang("new_field"), "attr.onclick" => "fieldOpNew();return false;" ),
-		array( "action" => "collection.collectionStats", "params" => xn(), "name" => rock_lang("statistics") ),
-		array( "action" => "collection.collectionExport", "params" => xn(), "name" => rock_lang("export") ),
-		array( "action" => "collection.collectionImport", "params" => xn(), "name" => rock_lang("import") ),
-		array( "action" => "collection.collectionProps", "params" => xn(), "name" => rock_lang("properties") ),
-		array( "action" => "collection.collectionIndexes", "params" => xn(), "name" => rock_lang("indexes") ),
-		array( "action" => "collection.collectionRename", "params" => xn(), "name" => rock_lang("rename") ),
-		array( "action" => "collection.collectionDuplicate", "params" => xn(), "name" => rock_lang("duplicate") ),
-		array( "action" => "collection.collectionTransfer", "params" => xn(), "name" => rock_lang("transfer") ),
-		array( "action" => "collection.collectionValidate", "params" => xn(), "name" => rock_lang("validate") ),
-		array( "action" => "collection.removeCollection", "params" => xn(), "name" => rock_lang("drop"), "onclick" => "return window.confirm('Are you sure to drop collection \'" . $collectionName . "\'?')" ),
+		array("action" => "collection.createRow", "params" => xn(), "name" => rock_lang("insert")),
+		array("action" => "collection.clearRows", "params" => xn(), "name" => rock_lang("clear"), "attr.onclick" => "return window.confirm('Are you sure to delete all records in collection \'" . $collectionName . "\'?');"),
+		array("action" => "#", "params" => array(), "name" => rock_lang("new_field"), "attr.onclick" => "fieldOpNew();return false;"),
+		array("action" => "collection.collectionStats", "params" => xn(), "name" => rock_lang("statistics")),
+		array("action" => "collection.collectionExport", "params" => xn(), "name" => rock_lang("export")),
+		array("action" => "collection.collectionImport", "params" => xn(), "name" => rock_lang("import")),
+		array("action" => "collection.collectionProps", "params" => xn(), "name" => rock_lang("properties")),
+		array("action" => "collection.collectionIndexes", "params" => xn(), "name" => rock_lang("indexes")),
+		array("action" => "collection.collectionRename", "params" => xn(), "name" => rock_lang("rename")),
+		array("action" => "collection.collectionDuplicate", "params" => xn(), "name" => rock_lang("duplicate")),
+		array("action" => "collection.collectionTransfer", "params" => xn(), "name" => rock_lang("transfer")),
+		array("action" => "collection.collectionValidate", "params" => xn(), "name" => rock_lang("validate")),
+		array("action" => "collection.removeCollection", "params" => xn(), "name" => rock_lang("drop"), "onclick" => "return window.confirm('Are you sure to drop collection \'" . $collectionName . "\'?')"),
 	);
-	
+
 	//plugin
 	if (class_exists("RFilter")) {
-		RFilter::apply("COLLECTION_MENU_FILTER", $menuItems, array( "dbName" => $dbName, "collectionName" => $collectionName ));
-	}	
-	
+		RFilter::apply("COLLECTION_MENU_FILTER", $menuItems, array("dbName" => $dbName, "collectionName" => $collectionName));
+	}
+
 	$displayCount = 6;
 	$hasMore = false;
-	
+
 	$string = "";
 	$count = count($menuItems);
 	foreach ($menuItems as $index => $op) {
@@ -234,7 +234,7 @@ function render_collection_menu($dbName, $collectionName) {
 			$string .= "<a href=\"#\" onclick=\"showMoreMenus(this);return false;\">" . rock_lang("more") . " &raquo;</a>";
 			$string .= "<div class=\"menu\">";
 		}
-		
+
 		if (!empty($op["action"])) {
 			$string .= '<a href="' . url($op["action"], isset($op["params"]) ? $op["params"] : array()) . '"';
 			if (__CONTROLLER__ . "." . __ACTION__ == $op["action"]) {
@@ -254,7 +254,7 @@ function render_collection_menu($dbName, $collectionName) {
 			$string .= $op["name"];
 			if (!empty($op["url"])) {
 				$string .= "</a>";
-			}	
+			}
 		}
 		if ($hasMore) {
 			$string .= "<br/>";
@@ -268,31 +268,32 @@ function render_collection_menu($dbName, $collectionName) {
 	if ($hasMore) {
 		$string .= "</div>";
 	}
-	echo $string;	
+	echo $string;
 }
+
 /**
  * Render document operations
- * 
+ *
  * @param string $dbName database name
  * @param string $collectionName collection name
- * @param mixed $docId document id 
+ * @param mixed $docId document id
  * @param integer $docIndex document index
  * @since 1.1.0
  */
 function render_doc_menu($dbName, $collectionName, $docId, $docIndex) {
 	$menuItems = array(
-		array (  "action" => "collection.none", "name" => rock_lang("text"), "attr.onclick" => "changeText('{$docIndex}');return false;" ),
-		array (  "action" => "collection.none", "name" => "Expand", "attr.id" => "expand_{$docIndex}", "attr.onclick" => "expandText('{$docIndex}');return false;" ),
+		array("action" => "collection.none", "name" => rock_lang("text"), "attr.onclick" => "changeText('{$docIndex}');return false;"),
+		array("action" => "collection.none", "name" => "Expand", "attr.id" => "expand_{$docIndex}", "attr.onclick" => "expandText('{$docIndex}');return false;"),
 	);
-	
+
 	//plugin
 	if (class_exists("RFilter")) {
-		RFilter::apply("DOC_MENU_FILTER", $menuItems, array( "dbName" => $dbName, "collectionName" => $collectionName, "docId" => $docId, "docIndex" => $docIndex ));
-	}	
-	
+		RFilter::apply("DOC_MENU_FILTER", $menuItems, array("dbName" => $dbName, "collectionName" => $collectionName, "docId" => $docId, "docIndex" => $docIndex));
+	}
+
 	$displayCount = 2;
 	$hasMore = false;
-	
+
 	$string = "";
 	$count = count($menuItems);
 	foreach ($menuItems as $index => $op) {
@@ -301,7 +302,7 @@ function render_doc_menu($dbName, $collectionName, $docId, $docIndex) {
 			$string .= "<a href=\"#\" onclick=\"showMoreDocMenus(this, {$docIndex});return false;\">" . rock_lang("more") . " &raquo;</a>";
 			$string .= "<div class=\"doc_menu doc_menu_{$docIndex}\">";
 		}
-		
+
 		if (!empty($op["action"])) {
 			$string .= '<a href="' . url($op["action"], isset($op["params"]) ? $op["params"] : array()) . '"';
 			if (__CONTROLLER__ . "." . __ACTION__ == $op["action"]) {
@@ -346,7 +347,7 @@ function render_doc_menu($dbName, $collectionName, $docId, $docIndex) {
  * @since 1.1.0
  */
 function render_select_data_types($name, $selected = null) {
-	$types = array (
+	$types = array(
 		"double" => "Double",
 		"string" => "String",
 		"boolean" => "Boolean",
@@ -388,12 +389,12 @@ function render_select_hosts($name = "host", $selected = null) {
 		$server = new MServer($config);
 		$hosts[] = $server->mongoName();
 	}
-	render_select($name, $hosts, $selected, array( "class" => "select_hosts" ));
+	render_select($name, $hosts, $selected, array("class" => "select_hosts"));
 }
 
 /**
  * Render a view file
- * 
+ *
  * examples:
  * - h_include("header", "title=DocumentTitle")
  * - h_include("footer")
@@ -446,8 +447,8 @@ function render_page_footer() {
  * @since 1.1.0
  */
 function render_server_response($response) {
-	$string = "<div style=\"border:2px #ccc solid;margin-bottom:5px;background-color:#eeefff\">" . 
-	rock_lang("responseserver") . "
+	$string = "<div style=\"border:2px #ccc solid;margin-bottom:5px;background-color:#eeefff\">" .
+		rock_lang("responseserver") . "
 		<div style=\"margin-top:5px\">
 			{$response}
 		</div>

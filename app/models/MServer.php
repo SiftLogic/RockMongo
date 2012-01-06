@@ -11,7 +11,7 @@ class MServer {
 	private $_mongoDb;
 	private $_controlAuth = true;
 	private $_controlUsers = array();
-	private $_uiDefaultDb;//not be used yet
+	private $_uiDefaultDb; //not be used yet
 	private $_uiOnlyDbs;
 	private $_uiHideDbs;
 	private $_uiHideCollections;
@@ -291,7 +291,7 @@ class MServer {
 				"ok" => 1
 			);
 			foreach ($user->dbs() as $db) {
-				$dbs["databases"][] = array( "name" => $db, "empty" => false, "sizeOnDisk" => 0);
+				$dbs["databases"][] = array("name" => $db, "empty" => false, "sizeOnDisk" => 0);
 			}
 		}
 

@@ -6,7 +6,7 @@
  * @author Leblanc Simon <leblanc.simon@gmail.com>
  * @version 1.0
  */
- 
+
 $message["TRANSLATION_NAME"] = "Fran&ccedil;ais - French";
 $message["TRANSLATION_ID"] = 6;
 

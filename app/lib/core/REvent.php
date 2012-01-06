@@ -3,10 +3,10 @@
 class REvent {
 	private static $_events = array();
 	private static $_listeners = array();
-	
+
 	/**
 	 * dispatch event
-	 * 
+	 *
 	 * @param unknown_type $event
 	 * @param array $params
 	 */
@@ -24,7 +24,7 @@ class REvent {
 			}
 		}
 	}
-	
+
 	/**
 	 * add a event listener
 	 *
@@ -43,7 +43,7 @@ class REvent {
 			"priority" => $priority
 		);
 	}
-	
+
 	/**
 	 * stop event propagation
 	 *
@@ -52,7 +52,7 @@ class REvent {
 	public static function stop($event) {
 		self::$_events[$event]["enabled"] = false;
 	}
-	
+
 	/**
 	 * remove a event listener
 	 *

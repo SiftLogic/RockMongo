@@ -1,13 +1,13 @@
 <?php
 
-define("__BASE__", rtrim(str_replace(DS, "/", dirname($_SERVER["PHP_SELF"])), "/"));//当前主目录路径
+define("__BASE__", rtrim(str_replace(DS, "/", dirname($_SERVER["PHP_SELF"])), "/")); //当前主目录路径
 
 class RExtController extends RController {
 	function redirect($action, array $params = array(), $js = false) {
 		$this->redirectUrl($this->path($action, $params), $js);
 		exit();
 	}
-	
+
 	function redirectUrl($url, $js = false) {
 		if ($js) {
 			echo '<script language="Javascript">window.location="' . $url . '"</script>';
@@ -16,7 +16,7 @@ class RExtController extends RController {
 		header("location:{$url}");
 		exit();
 	}
-	
+
 	function path($action, array $params = array()) {
 		if (!strstr($action, ".")) {
 			$action = $this->name() . "." . $action;
@@ -27,7 +27,7 @@ class RExtController extends RController {
 		}
 		return $url;
 	}
-	
+
 	/**
 	 * Is POST request?
 	 *
@@ -36,7 +36,7 @@ class RExtController extends RController {
 	function isPost() {
 		return ($_SERVER["REQUEST_METHOD"] == "POST");
 	}
-	
+
 	/**
 	 * Is from AJAX request?
 	 *

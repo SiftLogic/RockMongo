@@ -6,15 +6,15 @@
 class RPlugin {
 	private static $_plugins = array();
 	private static $_loaded = false;
-	
+
 	public function onBefore() {
-		
+
 	}
-	
+
 	public function onAfter() {
-		
+
 	}
-	
+
 	/**
 	 * read plugin help
 	 *
@@ -26,10 +26,10 @@ class RPlugin {
 			"version" => "1.0"
 		);
 	}
-	
+
 	/**
 	 * register a plugin
-	 * 
+	 *
 	 * @param string $pluginClass plugin class name
 	 * @param integer $priority priority
 	 * @throws Exception
@@ -41,31 +41,31 @@ class RPlugin {
 		if (!is_subclass_of($pluginClass, "RPlugin")) {
 			throw new Exception("plugin class '{$pluginClass}' must be inherited from RPlugin");
 		}
-		self::$_plugins[] = array( "obj" => new $pluginClass, "priority" => $priority );
+		self::$_plugins[] = array("obj" => new $pluginClass, "priority" => $priority);
 	}
-	
+
 	/**
 	 * call onBefore() method in plugin
 	 *
 	 */
 	public static function callBefore() {
-		$plugins = rock_array_sort(self::$_plugins, "priority"); 
+		$plugins = rock_array_sort(self::$_plugins, "priority");
 		foreach ($plugins as $plugin) {
 			$plugin["obj"]->onBefore();
 		}
 	}
-	
+
 	/**
 	 * call onAfter() method in plugin
 	 *
 	 */
 	public static function callAfter() {
-		$plugins = rock_array_sort(self::$_plugins, "priority", false); 
+		$plugins = rock_array_sort(self::$_plugins, "priority", false);
 		foreach ($plugins as $plugin) {
 			$plugin["obj"]->onAfter();
 		}
 	}
-	
+
 	/**
 	 * load all of plugins
 	 *
@@ -93,7 +93,7 @@ class RPlugin {
 				}
 			}
 		}
-		
+
 		self::$_loaded = true;
 	}
 }

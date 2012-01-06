@@ -6,7 +6,7 @@ class ServerController extends BaseController {
 	/** server infomation **/
 	public function doIndex() {
 		$db = $this->_mongo->selectDB("admin");
-		
+
 		//command line
 		$query = $db->command(array("getCmdLineOpts" => 1));
 		if (isset($query["argv"])) {
@@ -15,7 +15,7 @@ class ServerController extends BaseController {
 		else {
 			$this->commandLine = "";
 		}
-		
+
 		//web server
 		$this->webServers = array();
 		if (isset($_SERVER["SERVER_SOFTWARE"])) {
@@ -24,9 +24,9 @@ class ServerController extends BaseController {
 		}
 		$this->webServers["<a href=\"http://www.php.net\" target=\"_blank\">PHP version</a>"] = "PHP " . PHP_VERSION;
 		$this->webServers["<a href=\"http://www.php.net/mongo\" target=\"_blank\">PHP extension</a>"] = "<a href=\"http://pecl.php.net/package/mongo\" target=\"_blank\">mongo</a>/" . Mongo::VERSION;
-			
+
 		$this->directives = ini_get_all("mongo");
-		
+
 		//build info
 		$ret = $db->command(array("buildinfo" => 1));
 		$this->buildInfos = array();
@@ -34,7 +34,7 @@ class ServerController extends BaseController {
 			unset($ret["ok"]);
 			$this->buildInfos = $ret;
 		}
-		
+
 		//connection
 		$this->connections = array(
 			"Host" => $this->_server->mongoHost(),
@@ -42,10 +42,10 @@ class ServerController extends BaseController {
 			"Username" => "******",
 			"Password" => "******"
 		);
-		
+
 		$this->display();
 	}
-	
+
 	/** Server Status **/
 	public function doStatus() {
 		//status
@@ -57,18 +57,18 @@ class ServerController extends BaseController {
 			$this->status = $ret;
 			foreach ($this->status as $index => $_status) {
 				$json = $this->_highlight($_status, "json");
-				if ($index == "uptime") {//we convert it to days
+				if ($index == "uptime") { //we convert it to days
 					if ($_status >= 86400) {
-						$json .= "s (" . ceil($_status/86400) . "days)";
+						$json .= "s (" . ceil($_status / 86400) . "days)";
 					}
 				}
-				$this->status[$index] =  $json;
+				$this->status[$index] = $json;
 			}
 		}
-		
+
 		$this->display();
-	}	
-	
+	}
+
 	/** show databases **/
 	public function doDatabases() {
 		$ret = $this->_server->listDbs();
@@ -88,29 +88,29 @@ class ServerController extends BaseController {
 			$ret["storageSize"] = $this->_formatBytes($ret["storageSize"]);
 			$ret["indexSize"] = $this->_formatBytes($ret["indexSize"]);
 			$this->dbs[$index] = array_merge($this->dbs[$index], $ret);
-			
+
 		}
 		$this->dbs = rock_array_sort($this->dbs, "name");
 		$this->display();
-	}	
-	
+	}
+
 	/** execute command **/
 	public function doCommand() {
 		$ret = $this->_server->listDbs();
-		$this->dbs = $ret["databases"]; 
-		
+		$this->dbs = $ret["databases"];
+
 		if (!$this->isPost()) {
 			x("command", json_format("{assertinfo:1}"));
 			if (!x("db")) {
 				x("db", "admin");
 			}
 		}
-		
+
 		if ($this->isPost()) {
 			$command = xn("command");
 			$format = x("format");
 			if ($format == "json") {
-				$command = 	$this->_decodeJson($command);
+				$command = $this->_decodeJson($command);
 			}
 			else {
 				$eval = new VarEval($command);
@@ -125,11 +125,11 @@ class ServerController extends BaseController {
 		}
 		$this->display();
 	}
-	
+
 	/** execute code **/
 	public function doExecute() {
 		$ret = $this->_server->listDbs();
-		$this->dbs = $ret["databases"]; 
+		$this->dbs = $ret["databases"];
 		if (!$this->isPost()) {
 			if (!x("db")) {
 				x("db", "admin");
@@ -155,12 +155,12 @@ class ServerController extends BaseController {
 			$ret = $this->_mongo->selectDB(xn("db"))->execute($code, $arguments);
 			$this->ret = $this->_highlight($ret, "json");
 		}
- 		$this->display();
+		$this->display();
 	}
-	
+
 	/** processlist **/
 	public function doProcesslist() {
-		$query = $this->_mongo->selectDB("admin")->execute('function (){ 
+		$query = $this->_mongo->selectDB("admin")->execute('function (){
 			return db.$cmd.sys.inprog.find({ $all:1 }).next();
 		}');
 
@@ -169,7 +169,7 @@ class ServerController extends BaseController {
 			$this->progs = $query["retval"]["inprog"];
 		}
 		foreach ($this->progs as $index => $prog) {
-			foreach ($prog as $key=>$value) {
+			foreach ($prog as $key => $value) {
 				if (is_array($value)) {
 					$this->progs[$index][$key] = $this->_highlight($value, "json");
 				}
@@ -183,14 +183,14 @@ class ServerController extends BaseController {
 		$opid = xi("opid");
 		$query = $this->_mongo->selectDB("admin")->execute('function (opid){
 			return db.killOp(opid);
-		}', array( $opid ));
+		}', array($opid));
 		if ($query["ok"]) {
 			$this->redirect("server.processlist");
 		}
 		$this->ret = $this->_highlight($query, "json");
 		$this->display();
 	}
-	
+
 	/** create databse **/
 	public function doCreateDatabase() {
 		if ($this->isPost()) {
@@ -205,7 +205,7 @@ class ServerController extends BaseController {
 		}
 		$this->display();
 	}
-	
+
 	/** replication status **/
 	public function doReplication() {
 		$ret = $this->_mongo->selectDB("local")->execute('function () { return db.getReplicationInfo(); }');
@@ -233,24 +233,24 @@ class ServerController extends BaseController {
 				}
 			}
 		}
-		
+
 		//slaves
 		$this->slaves = array();
 		$query = $this->_mongo->selectDB("local")->selectCollection("slaves")->find();
 		foreach ($query as $one) {
-			foreach ($one as $param=>$value) {
+			foreach ($one as $param => $value) {
 				if ($param == "syncedTo") {
 					$one[$param] = date("Y-m-d H:i:s", $value->inc) . "." . $value->sec;
 				}
 			}
 			$this->slaves[] = $one;
 		}
-		
+
 		//masters
 		$this->masters = array();
 		$query = $this->_mongo->selectDB("local")->selectCollection("sources")->find();
 		foreach ($query as $one) {
-			foreach ($one as $param=>$value) {
+			foreach ($one as $param => $value) {
 				if ($param == "syncedTo" || $param == "localLogTs") {
 					if ($value->inc > 0) {
 						$one[$param] = date("Y-m-d H:i:s", $value->inc) . "." . $value->sec;
@@ -259,12 +259,12 @@ class ServerController extends BaseController {
 			}
 			$this->masters[] = $one;
 		}
-		
+
 		//me
 		$this->me = $this->_mongo->selectDB("local")->selectCollection("me")->findOne();
-		
+
 		$this->display();
-	}	
+	}
 }
 
 ?>

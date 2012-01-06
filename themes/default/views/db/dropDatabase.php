@@ -6,4 +6,7 @@
 <p style="font-size:14px">
 	<?php hm("dropwarning2"); ?>
 </p>
-<input type="button" value="<?php hm("yes"); ?>" onclick="window.location='<?php h(url("db.dropDatabase", array("db"=>$db,"confirm"=>1))); ?>'"/> <input type="button" value="<?php hm("back"); ?>" onclick="window.location='<?php h(url("db.index", array("db"=>$db))); ?>'"/>
+<input type="button" value="<?php hm("yes"); ?>"
+       onclick="window.location='<?php h(url("db.dropDatabase", array("db" => $db, "confirm" => 1))); ?>'"/> <input
+	type="button" value="<?php hm("back"); ?>"
+	onclick="window.location='<?php h(url("db.index", array("db" => $db))); ?>'"/>

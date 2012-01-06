@@ -7,15 +7,15 @@
  */
 
 /**
-* Defining version number and enabling error reporting
-*/
+ * Defining version number and enabling error reporting
+ */
 define("ROCK_MONGO_VERSION", "1.1.0");
 
 error_reporting(E_ALL);
 
 /**
-* Environment detection
-*/
+ * Environment detection
+ */
 if (!version_compare(PHP_VERSION, "5.0")) {
 	exit("To make things right, you must install PHP5");
 }
@@ -24,8 +24,8 @@ if (!class_exists("Mongo")) {
 }
 
 /**
-* Initializing configuration files and RockMongo
-*/
+ * Initializing configuration files and RockMongo
+ */
 require "config.php";
 require "rock.php";
 rock_check_version();

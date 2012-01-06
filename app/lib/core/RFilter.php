@@ -18,7 +18,7 @@ class RFilter {
 		if (isset(self::$_dataTypes[$dataType]["enabled"]) && !self::$_dataTypes[$dataType]["enabled"]) {
 			return;
 		}
-		$newParams = array( &$data );
+		$newParams = array(&$data);
 		foreach ($params as $param) {
 			$newParams[] = $param;
 		}

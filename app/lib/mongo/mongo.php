@@ -3,126 +3,139 @@
  * @param string $bson
  * @return array
  */
-function bson_decode (  $bson ){}
+function bson_decode($bson) {
+}
 
 /**
  * @param mixed $anything
  * @return string
  */
-function bson_encode ( $anything ){}
+function bson_encode($anything) {
+}
 
 class Mongo {
 	/* Constants */
 	/**
 	 * @var string
 	 */
-	const VERSION = "1" ;
+	const VERSION = "1";
 	/**
 	 * @var string
 	 */
-	const DEFAULT_HOST = "localhost" ;
+	const DEFAULT_HOST = "localhost";
 	/**
 	 * @var int
 	 */
-	const DEFAULT_PORT = 27017 ;
+	const DEFAULT_PORT = 27017;
 	/* Fields */
 	/**
 	 * @var boolean
 	 */
-	public $connected = FALSE ;
+	public $connected = FALSE;
 	/**
-	 * @var string 
+	 * @var string
 	 */
 	protected $server = "localhost:27017";
 	/**
-	 * @var boolean 
+	 * @var boolean
 	 */
-	protected $persistent = FALSE ;
-	
+	protected $persistent = FALSE;
+
 	/* Methods */
-	/**
-	 * @return boolean 
-	 */
-	public function close ( );
 	/**
 	 * @return boolean
 	 */
-	public function connect ( );
-	
+	public function close();
+
 	/**
-	 * @return boolean 
+	 * @return boolean
 	 */
-	protected function connectUtil ( );
-	
+	public function connect();
+
+	/**
+	 * @return boolean
+	 */
+	protected function connectUtil();
+
 	/**
 	 * @param string $server
 	 * @param array $options
 	 */
-	function __construct ($server = "mongodb://localhost:27017", array $options = array("connect" => TRUE));
-	
+	function __construct($server = "mongodb://localhost:27017", array $options = array("connect" => TRUE));
+
 	/**
 	 * @param mixed $db
 	 * @return array
 	 */
-	public function dropDB ( mixed $db );
-	
+	public function dropDB(mixed $db);
+
 	/**
 	 * @return bool
 	 */
-	public function forceError (  );
-	
+	public function forceError();
+
 	/**
 	 * @param string $dbname
 	 * @return MongoDB
 	 */
-	public function __get ( $dbname );
+	public function __get($dbname);
+
 	/**
 	 * @return array
 	 */
-	public function lastError ( );
+	public function lastError();
+
 	/**
 	 * @return array
 	 */
-	public function listDBs ( );
+	public function listDBs();
+
 	/**
 	 * @return boolean
 	 */
-	public function pairConnect ( );
+	public function pairConnect();
+
 	/**
 	 * @param string $username
 	 * @param string $password
 	 * @return boolean
 	 */
-	public function pairPersistConnect ($username = "" , $password = "" );
+	public function pairPersistConnect($username = "", $password = "");
+
 	/**
 	 * @param string $username
 	 * @param string $password
 	 * @return boolean
 	 */
-	public function persistConnect ($username = "" , $password = "" );
+	public function persistConnect($username = "", $password = "");
+
 	/**
 	 * @return array
 	 */
-	public function prevError ( );
+	public function prevError();
+
 	/**
 	 * @return array
 	 */
-	public function resetError ( );
+	public function resetError();
+
 	/**
 	 * @param string|MongoDB $db
 	 * @param string $collection
 	 * @return MongoCollection
 	 */
-	public function selectCollection ( $db , $collection );
+	public function selectCollection($db, $collection);
+
 	/**
 	 * @param string $dbname
 	 * @return MongoDB
 	 */
-	public function selectDB ( $dbname );
+	public function selectDB($dbname);
+
 	/**
 	 * @return string
 	 */
-	public function __toString ( );
+	public function __toString();
 }
 
 class MongoDB {
@@ -130,314 +143,383 @@ class MongoDB {
 	/**
 	 * @var int
 	 */
-	const PROFILING_OFF = 0 ;
+	const PROFILING_OFF = 0;
 	/**
 	 * @var int
 	 */
-	const PROFILING_SLOW = 1 ;
+	const PROFILING_SLOW = 1;
 	/**
 	 * @var int
 	 */
-	const PROFILING_ON = 2 ;
+	const PROFILING_ON = 2;
+
 	/* Methods */
 	/**
 	 * @param string $username
 	 * @param string $password
 	 * @return array
 	 */
-	public function authenticate ( $username , $password );
+	public function authenticate($username, $password);
+
 	/**
 	 * @param array $data
 	 * @return array
 	 */
-	public function command ( array $data );
+	public function command(array $data);
+
 	/**
 	 * @param Mongo $conn
 	 * @param string $name
 	 */
-	function __construct ( Mongo $conn , string $name );
+	function __construct(Mongo $conn, string $name);
+
 	/**
 	 * @param string $name
 	 * @param bool $capped
 	 * @param int $size
 	 * @param int $max
-	 * @return MongoCollection 
+	 * @return MongoCollection
 	 */
-	public function createCollection ( string $name, bool $capped = FALSE, int $size = 0, int $max = 0);
+	public function createCollection(string $name, bool $capped = FALSE, int $size = 0, int $max = 0);
+
 	/**
 	 * @param string $collection
 	 * @param mixed $a
 	 * @return array
 	 */
-	public function createDBRef ( string $collection , mixed $a );
+	public function createDBRef(string $collection, mixed $a);
+
 	/**
 	 * @return array
 	 */
-	public function drop ( );
+	public function drop();
+
 	/**
 	 * @param mixed $coll
 	 * @return array
 	 */
-	public function dropCollection ( mixed $coll );
+	public function dropCollection(mixed $coll);
+
 	/**
 	 * @param mixed $code
 	 * @param array $args
 	 * @return array
 	 */
-	public function execute ( mixed $code, array $args = array() );
+	public function execute(mixed $code, array $args = array());
+
 	/**
 	 * @return bool
 	 */
-	public function forceError ( );
+	public function forceError();
+
 	/**
 	 * @return MongoCollection
 	 */
-	public function __get ( string $name );
+	public function __get(string $name);
+
 	/**
 	 * @return array
 	 */
-	public function getDBRef ( array $ref );
+	public function getDBRef(array $ref);
+
 	/**
-	 * @return MongoGridFS 
+	 * @return MongoGridFS
 	 */
-	public function getGridFS (string $prefix = "fs" );
+	public function getGridFS(string $prefix = "fs");
+
 	/**
 	 * @return int
 	 */
-	public function getProfilingLevel ( );
+	public function getProfilingLevel();
+
 	/**
 	 * @return array
 	 */
-	public function lastError ( );
+	public function lastError();
+
 	/**
 	 * @return array
 	 */
-	public function listCollections ( );
+	public function listCollections();
+
 	/**
 	 * @return array
 	 */
-	public function prevError ( );
+	public function prevError();
+
 	/**
 	 * @return array
 	 */
-	public function repair (bool $preserve_cloned_files = FALSE, bool $backup_original_files = FALSE  );
+	public function repair(bool $preserve_cloned_files = FALSE, bool $backup_original_files = FALSE);
+
 	/**
 	 * @return array
 	 */
-	public function resetError ( );
+	public function resetError();
+
 	/**
 	 * @return MongoCollection
 	 */
-	public function selectCollection ( string $name );
+	public function selectCollection(string $name);
+
 	/**
 	 * @return int
 	 */
-	public function setProfilingLevel ( int $level );
+	public function setProfilingLevel(int $level);
+
 	/**
 	 * @return string
 	 */
-	public function __toString ( );
+	public function __toString();
 }
 
 class MongoCollection {
 	/* Fields */
 	/**
-	 * @var MongoDB 
+	 * @var MongoDB
 	 */
-	public $db = NULL ;
+	public $db = NULL;
+
 	/* Methods */
 	/**
 	 * @return mixed
 	 */
-	public function batchInsert ( array $a, array $options = array() );
-	public function __construct ( MongoDB $db , string $name );
+	public function batchInsert(array $a, array $options = array());
+
+	public function __construct(MongoDB $db, string $name);
+
 	/**
 	 * @return int
 	 */
-	public function count (mixed $query = array());
+	public function count(mixed $query = array());
+
 	/**
 	 * @return array
 	 */
-	public function createDBRef ( array $a );
+	public function createDBRef(array $a);
+
 	/**
 	 * @param string|array $keys
 	 * @return array
 	 */
-	public function deleteIndex ( $keys );
+	public function deleteIndex($keys);
+
 	/**
 	 * @return array
 	 */
-	public function deleteIndexes ( );
+	public function deleteIndexes();
+
 	/**
 	 * @return array
 	 */
-	public function drop (  );
+	public function drop();
+
 	/**
 	 * @return boolean
 	 */
-	public function ensureIndex ( array $keys , array $options );
+	public function ensureIndex(array $keys, array $options);
+
 	/**
 	 * @return MongoCursor
 	 */
-	public function find ( array $query = array() , array $fields = array() );
+	public function find(array $query = array(), array $fields = array());
+
 	/**
 	 * @return array
 	 */
-	public function findOne ( array $query = array() , array $fields = array()  );
+	public function findOne(array $query = array(), array $fields = array());
+
 	/**
 	 * @return MongoCollection
 	 */
-	public function __get ( string $name );
+	public function __get(string $name);
+
 	/**
 	 * @return array
 	 */
-	public function getDBRef ( array $ref );
+	public function getDBRef(array $ref);
+
 	/**
 	 * @return array
 	 */
-	public function getIndexInfo ( );
+	public function getIndexInfo();
+
 	/**
 	 * @return string
 	 */
-	public function getName ( );
+	public function getName();
+
 	/**
 	 * @return array
 	 */
-	public function group ( mixed $keys , array $initial , MongoCode $reduce, array $condition = array()  );
+	public function group(mixed $keys, array $initial, MongoCode $reduce, array $condition = array());
+
 	/**
 	 * @return mixed
 	 */
-	public function insert ( array $a , array $options = array()  );
+	public function insert(array $a, array $options = array());
+
 	/**
 	 * @return mixed
 	 */
-	public function remove ( array $criteria , array $options = array() );
+	public function remove(array $criteria, array $options = array());
+
 	/**
 	 * @return mixed
 	 */
-	public function save ( array $a , array $options = array()  );
+	public function save(array $a, array $options = array());
+
 	/**
 	 * @return string
 	 */
-	public function __toString (  );
+	public function __toString();
+
 	/**
 	 * @return boolean
 	 */
-	public function update ( array $criteria , array $newobj , array $options = array()  );
+	public function update(array $criteria, array $newobj, array $options = array());
+
 	/**
 	 * @return array
 	 */
-	public function validate ( bool $scan_data = FALSE  );
+	public function validate(bool $scan_data = FALSE);
 }
 
 class MongoCursor
-implements Iterator {
+	implements Iterator {
 	/* Static Fields */
 	/**
 	 * @var boolean
 	 */
-	static $slaveOkay = FALSE ;
+	static $slaveOkay = FALSE;
+
 	/* Methods */
 	/**
 	 * @return MongoCursor
 	 */
-	public function addOption ( string $key , mixed $value );
-	function __construct ( resource $connection , string $ns , array $query = array(), array $fields = array()  );
+	public function addOption(string $key, mixed $value);
+
+	function __construct(resource $connection, string $ns, array $query = array(), array $fields = array());
+
 	/**
-	 * 
+	 *
 	 * @param boolean $all 是否使用limit和skip信息
 	 * @return int
 	 */
-	public function count ( boolean $all = FALSE  );
+	public function count(boolean $all = FALSE);
+
 	/**
 	 * @return array
 	 */
-	public function current ( );
+	public function current();
+
 	/**
 	 * @return boolean
 	 */
-	public function dead ( );
-	protected function doQuery ( );
+	public function dead();
+
+	protected function doQuery();
+
 	/**
 	 * @return array
 	 */
-	public function explain ( );
+	public function explain();
+
 	/**
 	 * @return MongoCursor
 	 */
-	public function  fields ( array $f );
+	public function  fields(array $f);
+
 	/**
 	 * @return array
 	 */
-	public function  getNext (  );
+	public function  getNext();
+
 	/**
 	 * @return array
 	 */
-	public function info (  );
+	public function info();
+
 	/**
 	 * @return boolean
 	 */
-	public function hasNext ( );
+	public function hasNext();
+
 	/**
 	 * @return MongoCursor
 	 */
-	public function  hint ( array $key_pattern );
+	public function  hint(array $key_pattern);
+
 	/**
 	 * @return MongoCursor
 	 */
-	public function  immortal ( boolean $liveForever = true  );
+	public function  immortal(boolean $liveForever = true);
+
 	/**
 	 * @return string
 	 */
-	public function key ( );
+	public function key();
+
 	/**
 	 * @return MongoCursor
 	 */
-	public function  limit ( int $num );
-	public function next (  );
-	public function reset (  );
-	public function  rewind (  );
+	public function  limit(int $num);
+
+	public function next();
+
+	public function reset();
+
+	public function  rewind();
+
 	/**
 	 * @return MongoCursor
 	 */
-	public function skip ( int $num );
+	public function skip(int $num);
+
 	/**
 	 * @return MongoCursor
 	 */
-	public function slaveOkay ( boolean $okay = true  );
+	public function slaveOkay(boolean $okay = true);
+
 	/**
 	 * @return MongoCursor
 	 */
-	public function snapshot ( );
+	public function snapshot();
+
 	/**
 	 * @return MongoCursor
 	 */
-	public function sort ( array $fields );
+	public function sort(array $fields);
+
 	/**
 	 * @return MongoCursor
 	 */
-	public function tailable ( boolean $tail = true  );
+	public function tailable(boolean $tail = true);
+
 	/**
 	 * @return MongoCursor
 	 */
-	public function timeout ( int $ms );
+	public function timeout(int $ms);
+
 	/**
 	 * @return boolean
 	 */
-	public function valid ( );
+	public function valid();
 }
 
 class MongoId {
 	/* Methods */
-	function __construct ( string $id = NULL  );
+	function __construct(string $id = NULL);
+
 	/**
 	 * @return int
 	 */
-	public function getTimestamp ( );
+	public function getTimestamp();
+
 	/**
 	 * @return string
 	 */
-	public function __toString ( );
+	public function __toString();
 }
 
 class MongoRegex {
@@ -445,95 +527,106 @@ class MongoRegex {
 	/**
 	 * @var string
 	 */
-	public $regex ;
+	public $regex;
 	/**
 	 * @var string
 	 */
-	public $flags ;
+	public $flags;
+
 	/* Methods */
-	function __construct ( string $regex );
+	function __construct(string $regex);
+
 	/**
 	 * @return string
 	 */
-	public function __toString ( );
+	public function __toString();
 }
 
 class MongoCode {
 	/* Methods */
-	function __construct ( string $code , array $scope = array()  );
+	function __construct(string $code, array $scope = array());
+
 	/**
 	 * @return string
 	 *
 	 */
-	public function  __toString ( );
+	public function  __toString();
 }
 
 class MongoGridFS
-extends MongoCollection {
+	extends MongoCollection {
 	/* Fields */
 	/**
 	 * @var MongoCollection
 	 */
-	public  $chunks = NULL ;
+	public $chunks = NULL;
 	/**
 	 * @return string
 	 */
-	protected $filesName = NULL ;
+	protected $filesName = NULL;
 	/**
 	 * @return string
 	 */
-	protected $chunksName = NULL ;
+	protected $chunksName = NULL;
+
 	/* Methods */
-	function __construct ( MongoDB $db, string $prefix = "fs" );
+	function __construct(MongoDB $db, string $prefix = "fs");
+
 	/**
 	 * @return array
 	 */
-	public function drop (  );
+	public function drop();
+
 	/**
 	 * @return MongoGridFSCursor
 	 */
-	public function  find ( array $query = array() , array $fields = array()  );
+	public function  find(array $query = array(), array $fields = array());
+
 	/**
 	 * @return MongoGridFSFile
 	 */
-	public function  findOne ( mixed $query = array()  );
+	public function  findOne(mixed $query = array());
+
 	/**
 	 * @return boolean
 	 */
-	public function remove ( array $criteria = array() , boolean $just_one = FALSE  );
+	public function remove(array $criteria = array(), boolean $just_one = FALSE);
+
 	/**
 	 * @return mixed
 	 */
-	public function storeBytes ( string $bytes , array $extra = array() , array $options = array()  );
+	public function storeBytes(string $bytes, array $extra = array(), array $options = array());
+
 	/**
 	 * @return mixed
 	 */
-	public function storeFile ( string $filename, array $extra = array(), array $options = array()  );
+	public function storeFile(string $filename, array $extra = array(), array $options = array());
+
 	/**
 	 * @return mixed
 	 */
-	public function storeUpload ( string $name , string $filename = NULL  );
+	public function storeUpload(string $name, string $filename = NULL);
 }
 
 
 class MongoException
-extends Exception {
+	extends Exception {
 }
 
 class MongoCursorException
-extends MongoException {
+	extends MongoException {
 }
 
 class MongoCursorTimeoutException
-extends MongoCursorException {
+	extends MongoCursorException {
 }
 
 class MongoConnectionException
-extends MongoException {
+	extends MongoException {
 }
 
 class MongoGridFSException
-extends MongoException {
+	extends MongoException {
 }
 
 ?>

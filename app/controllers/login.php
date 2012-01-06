@@ -9,13 +9,13 @@ class LoginController extends BaseController {
 			render_view("header");
 		}
 	}
-	
+
 	/**
-	 * login page and post 
+	 * login page and post
 	 */
 	public function doIndex() {
 		global $MONGO;
-		
+
 		$password = trim(xn("password"));
 		$this->username = trim(xn("username"));
 		$this->db = trim(xn("db"));
@@ -26,7 +26,7 @@ class LoginController extends BaseController {
 			720 => "1 " . rock_lang("month"),
 		);
 		$this->moreOptions = xi("more");
-		
+
 		if ($this->isPost()) {
 			//server exists?
 			if (!isset($MONGO["servers"][$this->hostIndex])) {
@@ -41,21 +41,21 @@ class LoginController extends BaseController {
 				$this->display();
 				return;
 			}
-			
+
 			//remember user
 			import("models.MUser");
 			MUser::login($this->username, $password, $this->hostIndex, $this->db, xi("expire") * 3600);
-			
+
 			//remember lang
 			setcookie("ROCK_LANG", x("lang"), time() + 365 * 86400);
-			
+
 			//jump to admin page
-			$this->redirect("admin.index", array( "host" => $this->hostIndex ));
+			$this->redirect("admin.index", array("host" => $this->hostIndex));
 		}
 		else {
 			$this->display();
 		}
-	}	
+	}
 }
 
 ?>

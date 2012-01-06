@@ -7,7 +7,7 @@
  * - attr("state", 0);
  * - attr("state", "0");
  * 两个查询是不一样的
- * 
+ *
  */
 class RQuery {
 	/**
@@ -24,12 +24,12 @@ class RQuery {
 	 */
 	private $_collection;
 	private $_collectionName;
-	private $_attrs = array();//field1 => array(..), field2 => array(...) ...
-	private $_results = array();//field => [1|0]
-	private $_sort = array();//field => [1|-1]
+	private $_attrs = array(); //field1 => array(..), field2 => array(...) ...
+	private $_results = array(); //field => [1|0]
+	private $_sort = array(); //field => [1|-1]
 	private $_offset = -1;
 	private $_limit = 0;
-	private $_conds = array();//field1 => array( '$lt' => value1, .. )
+	private $_conds = array(); //field1 => array( '$lt' => value1, .. )
 	private $_noPk = false;
 	private $_hints = array();
 
@@ -46,7 +46,7 @@ class RQuery {
 		$this->_db = $mongo->selectDB($this->_dbName);
 		$this->_collection = $mongo->selectCollection($this->_dbName, $this->_collectionName);
 	}
-	
+
 	/**
 	 * 指定属性值
 	 *
@@ -56,7 +56,7 @@ class RQuery {
 	 */
 	function attr($nameOrAttrs, $value = null) {
 		if (!is_array($nameOrAttrs)) {
-			$nameOrAttrs = array( $nameOrAttrs => $value );
+			$nameOrAttrs = array($nameOrAttrs => $value);
 		}
 		foreach ($nameOrAttrs as $attr => $value) {
 			if ($attr == "_id" && (!is_object($value) || !($value instanceof MongoId)) && strlen($attr) == 24) {
@@ -74,10 +74,10 @@ class RQuery {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * 指定返回的结果属性。在当前的mongo版本中（<1.4.x），不能混合使用result()和exclude()
-	 * 
+	 *
 	 * @param string $attr1 第一个属性
 	 * @param ...
 	 * @return RQuery
@@ -102,10 +102,10 @@ class RQuery {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * 指定返回的结果中要排除的属性
-	 * 
+	 *
 	 * @param string $attr1 第一个属性
 	 * @param ...
 	 * @return RQuery
@@ -125,7 +125,7 @@ class RQuery {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * 设置正排序条件
 	 *
@@ -136,18 +136,18 @@ class RQuery {
 		$this->_sort[$attr] = 1;
 		return $this;
 	}
-	
+
 	/**
 	 * 设置倒排序条件
 	 *
 	 * @param string $attr 需要排序的属性
 	 * @return RQuery
-	 */	
+	 */
 	function desc($attr = "_id") {
 		$this->_sort[$attr] = -1;
 		return $this;
 	}
-	
+
 	/**
 	 * 设置记录开始的位置
 	 *
@@ -158,7 +158,7 @@ class RQuery {
 		$this->_offset = intval($offset);
 		return $this;
 	}
-	
+
 	/**
 	 * 设置需要查询的记录行数
 	 *
@@ -169,7 +169,7 @@ class RQuery {
 		$this->_limit = intval($size);
 		return $this;
 	}
-	
+
 	/**
 	 * 增加查询条件
 	 *
@@ -180,7 +180,7 @@ class RQuery {
 		$this->_conds = array_merge($this->_conds, $cond);
 		return $this;
 	}
-	
+
 	/**
 	 * 添加操作符
 	 *
@@ -196,23 +196,23 @@ class RQuery {
 		$this->_conds[$attr][$operator] = $value;
 		return $this;
 	}
-	
+
 	function gt($attr, $value) {
 		return $this->operator($attr, '$gt', $value);
 	}
-	
+
 	function lt($attr, $value) {
 		return $this->operator($attr, '$lt', $value);
 	}
-	
+
 	function gte($attr, $value) {
 		return $this->operator($attr, '$gte', $value);
 	}
-	
+
 	function lte($attr, $value) {
 		return $this->operator($attr, '$lte', $value);
 	}
-	
+
 	/**
 	 * 设置不等于（!=）条件
 	 *
@@ -223,27 +223,27 @@ class RQuery {
 	function ne($attr, $value) {
 		return $this->operator($attr, '$ne', $value);
 	}
-	
+
 	function in($attr, array $values) {
 		return $this->operator($attr, '$in', $values);
 	}
-	
+
 	function nin($attr, array $values) {
 		return $this->operator($attr, '$nin', $values);
 	}
-	
+
 	function mod($attr, $value) {
 		return $this->operator($attr, '$mod', $value);
-	} 
-	
+	}
+
 	function all($attr, $value) {
 		return $this->operator($attr, '$all', $value);
 	}
-	
+
 	function contains($attr, $value) {
 		return $this->all($attr, '$all', $value);
 	}
-	
+
 	/**
 	 * 限定集合属性的尺寸
 	 *
@@ -254,19 +254,19 @@ class RQuery {
 	function size($attr, $size) {
 		return $this->operator($attr, '$size', intval($size));
 	}
-	
+
 	function exists($attr, $bool = true) {
 		return $this->operator($attr, '$exists', $bool);
 	}
-	
+
 	function type($attr, $type) {
 		return $this->operator($attr, '$type', intval($type));
 	}
-	
+
 	function match($attr, $regexp) {
 		return $this->attr($attr, new MongoRegex($regexp));
 	}
-	
+
 	/**
 	 * 分割一个是集合（相当于PHP中的索引数组）的属性值
 	 *
@@ -276,10 +276,10 @@ class RQuery {
 	 * @return RQuery
 	 */
 	function slice($attr, $subOffset, $subLimit) {
-		$this->_results[$attr]['$slice'] = array( intval($subOffset), intval($subLimit) );
+		$this->_results[$attr]['$slice'] = array(intval($subOffset), intval($subLimit));
 		return $this;
 	}
-	
+
 	/**
 	 * 使用函数。如果数据较多话，将会非常慢。
 	 *
@@ -290,7 +290,7 @@ class RQuery {
 		$this->_conds['$where'] = $func;
 		return $this;
 	}
-	
+
 	/**
 	 * 设置否是不返回主键（_id）
 	 *
@@ -301,7 +301,7 @@ class RQuery {
 		$this->_noPk = $noPk;
 		return $this;
 	}
-	
+
 	/**
 	 * 设置查询的主键值
 	 *
@@ -325,11 +325,11 @@ class RQuery {
 		}
 		return $this;
 	}
-	
+
 	function copy() {
 		exit(__METHOD__ . "() to be implemented");
 	}
-	
+
 	/**
 	 * 现有查询条件的组合
 	 *
@@ -349,7 +349,7 @@ class RQuery {
 		}
 		return array_merge($attrs, $this->_conds);
 	}
-	
+
 	/**
 	 * add hints for query
 	 *
@@ -360,7 +360,7 @@ class RQuery {
 		$this->_hints[] = $hint;
 		return $this;
 	}
-	
+
 	/**
 	 * 取得当前查询的游标
 	 *
@@ -384,7 +384,7 @@ class RQuery {
 		}
 		return $cursor;
 	}
-	
+
 	/**
 	 * 查找一行数据，并以一个对象的形式返回
 	 *
@@ -406,7 +406,7 @@ class RQuery {
 		$obj->setId($row["_id"]);
 		return $obj;
 	}
-	
+
 	/**
 	 * 查找一行数据，以数组的形式返回
 	 *
@@ -421,13 +421,13 @@ class RQuery {
 		$all = $this->findAll();
 		return empty($all) ? array() : $all[0];
 	}
-	
+
 	/**
 	 * 查找一行数据，但只返回ID数据
 	 *
 	 * @param string $id 主键_id值
 	 * @return RObjct
-	 */	
+	 */
 	function findId($id = null) {
 		if (!is_null($id)) {
 			$this->id($id);
@@ -436,7 +436,7 @@ class RQuery {
 		$this->_results["_id"] = 1;
 		return $this->find();
 	}
-	
+
 	/**
 	 * 根据请求的参数查询数据
 	 *
@@ -446,7 +446,7 @@ class RQuery {
 	function findx($requestPkName = "id") {
 		return $this->find(x($requestPkName));
 	}
-	
+
 	/**
 	 * 取出所有记录
 	 *
@@ -468,7 +468,7 @@ class RQuery {
 		}
 		return $rets;
 	}
-	
+
 	/**
 	 * 分页
 	 *
@@ -487,7 +487,7 @@ class RQuery {
 		$page->setRows($this->findAll());
 		return $page;
 	}
-	
+
 	/**
 	 * 计算符合条件的行数
 	 *
@@ -497,7 +497,7 @@ class RQuery {
 	function count($withLimit = false) {
 		return $this->cursor()->count($withLimit);
 	}
-	
+
 	/**
 	 * Insert new record
 	 *
@@ -506,7 +506,7 @@ class RQuery {
 	 * @return boolean
 	 */
 	function insert(array $attrs, $safe = false) {
-		$bool = $this->_collection->insert($attrs, array( "safe" => $safe ));
+		$bool = $this->_collection->insert($attrs, array("safe" => $safe));
 		if ($bool) {
 			import("@.RMongo");
 			if ($attrs["_id"] instanceof MongoId) {
@@ -517,8 +517,8 @@ class RQuery {
 			}
 		}
 		return $bool;
-	}	
-	
+	}
+
 	/**
 	 * 插入新的行，_id是上一行的ID加1
 	 *
@@ -544,13 +544,13 @@ class RQuery {
 		        break;
 		    }
 		    return o._id;
-		}', array( $attrs, $this->_collectionName ));		
-		
+		}', array($attrs, $this->_collectionName));
+
 		if ($response["ok"]) {
 			import("@.RMongo");
 			RMongo::setLastInsertId($response["retval"]);
 		}
-		
+
 		return $response["ok"];
 	}
 
@@ -562,19 +562,19 @@ class RQuery {
 	function delete() {
 		return $this->_collection->remove($this->criteria());
 	}
-	
+
 	/**
 	 * 更改或插入新的对象
 	 *
 	 * 在当前驱动下不能正常工作
-	 * 
+	 *
 	 * @param array $obj 新的对象
 	 * @return boolean
 	 */
 	function upsert(array $obj) {
-		return $this->_collection->update($this->criteria(), $obj, array( "upsert" => true, "multiple" => true));
+		return $this->_collection->update($this->criteria(), $obj, array("upsert" => true, "multiple" => true));
 	}
-	
+
 	/**
 	 * 批量插入一组新的数据
 	 *
@@ -584,6 +584,7 @@ class RQuery {
 	function batchInsert(array $array) {
 		return $this->_collection->batchInsert($array);
 	}
+
 	/**
 	 * 当前操作的集合
 	 *
@@ -592,7 +593,7 @@ class RQuery {
 	function collection() {
 		return $this->_collection;
 	}
-	
+
 	/**
 	 * 当前操作的数据库
 	 *

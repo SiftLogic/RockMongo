@@ -2,8 +2,8 @@
 
 class MMongo {
 	/**
-	 * throw operation exception 
-	 * 
+	 * throw operation exception
+	 *
 	 * @param mixed $ret the result to be checked
 	 */
 	public static function checkException($ret) {
@@ -22,7 +22,7 @@ class MMongo {
 		p($ret);
 		exit();
 	}
-	
+
 	public static function readException($ret) {
 		if (!empty($ret["assertion"])) {
 			return $ret["assertion"];

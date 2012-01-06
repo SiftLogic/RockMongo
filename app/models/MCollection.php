@@ -1,7 +1,7 @@
 <?php
 
 class MCollection {
-	static function fields (MongoDB $db, $collection) {
+	static function fields(MongoDB $db, $collection) {
 		$one = $db->selectCollection($collection)->findOne();
 		if (empty($one)) {
 			return array();
@@ -10,7 +10,7 @@ class MCollection {
 		self::_fieldsFromRow($fields, $one);
 		return $fields;
 	}
-	
+
 	private static function _fieldsFromRow(&$fields, $row, $prefix = null) {
 		foreach ($row as $field => $value) {
 			if (is_integer($field) || is_float($field)) {
@@ -23,7 +23,7 @@ class MCollection {
 			}
 		}
 	}
-	
+
 	/**
 	 * If a row is GridFS row
 	 *
@@ -33,7 +33,7 @@ class MCollection {
 	static function isFile(array $row) {
 		return isset($row["filename"]) && isset($row["chunkSize"]);
 	}
-	
+
 	/**
 	 * get .chunks collection name from .files collection name
 	 *
@@ -43,7 +43,7 @@ class MCollection {
 	static function chunksCollection($filesCollection) {
 		return preg_replace("/\\.files$/", ".chunks", $filesCollection);
 	}
-	
+
 	/**
 	 * read collection information
 	 *
@@ -51,8 +51,8 @@ class MCollection {
 	 * @param string $collection collection name
 	 */
 	static function info(MongoDB $db, $collection) {
-		$ret = $db->execute('function (coll){return db.getCollection(coll).exists();}', array( $collection ));
-		
+		$ret = $db->execute('function (coll){return db.getCollection(coll).exists();}', array($collection));
+
 		if (!$ret["ok"]) {
 			exit("There is something wrong:<font color=\"red\">{$ret['errmsg']}</font>, please refresh the page to try again.");
 		}
@@ -72,7 +72,7 @@ class MCollection {
 		if (isset($options["max"])) {
 			$max = $options["max"];
 		}
-		return array( "capped" => $isCapped, "size" => $size, "max" => $max );
+		return array("capped" => $isCapped, "size" => $size, "max" => $max);
 	}
 }
 

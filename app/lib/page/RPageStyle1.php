@@ -20,14 +20,14 @@
 import("@.RPage");
 class RPageStyle1 extends RPage {
 	function __toString() {
-        $pages = array();
-        $pageNum = $this->length();
-        $currPageNo = $this->current();
-        $query = $this->query();
-        $size = $this->size();
-        $total = $this->total();
-        $pageSetNum = $this->pageSetNum();
-        $middlePageNum = ceil($pageSetNum/2);
+		$pages = array();
+		$pageNum = $this->length();
+		$currPageNo = $this->current();
+		$query = $this->query();
+		$size = $this->size();
+		$total = $this->total();
+		$pageSetNum = $this->pageSetNum();
+		$middlePageNum = ceil($pageSetNum / 2);
 		if ($pageNum > 0) {
 			if ($currPageNo <= $middlePageNum) {
 				$start = 1;
@@ -42,7 +42,7 @@ class RPageStyle1 extends RPage {
 				$end = min($currPageNo + $middlePageNum - 1, $pageNum);
 			}
 			if ($currPageNo > 1) {
-				$pages[] = "<a href=\"" . $this->url($currPageNo - 1)  . "\" title=\"Previous {$size}\">" . $this->message("pager_prev") . "</a>&nbsp; ";
+				$pages[] = "<a href=\"" . $this->url($currPageNo - 1) . "\" title=\"Previous {$size}\">" . $this->message("pager_prev") . "</a>&nbsp; ";
 			}
 			for ($i = $start; $i <= $end; $i++) {
 				$_start = $size * ($i - 1) + 1;
@@ -58,9 +58,9 @@ class RPageStyle1 extends RPage {
 				$pages[] = " &nbsp;<a href=\"" . $this->url($currPageNo + 1) . "\" title=\"Next {$size}\">" . $this->message("pager_next") . "</a>";
 			}
 		}
-		
-       	$string = implode(" &nbsp;", $pages);
-        
-        return $string;
+
+		$string = implode(" &nbsp;", $pages);
+
+		return $string;
 	}
 }
